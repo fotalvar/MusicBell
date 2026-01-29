@@ -1,0 +1,41 @@
+{
+  "canciones": [
+    {
+      "id": 1,
+      "nombre": "Superestrella - Aitana (2026-01-29)",
+      "archivo": "Superestrella - Aitana.mp3",
+      "tipo_planificacion": "fecha",
+      "habilitada": true,
+      "archivado": true,
+      "hora": "10:13",
+      "fecha": "2026-01-29",
+      "duracion": "N/A"
+    },
+    {
+      "id": 2,
+      "nombre": "Golden (2026-01-30)",
+      "archivo": "Golden.mp3",
+      "tipo_planificacion": "fecha",
+      "habilitada": true,
+      "archivado": true,
+      "hora": "10:30",
+      "fecha": "2026-01-29",
+      "duracion": "N/A"
+    },
+    {
+      "id": 3,
+      "nombre": "Superestrella",
+      "archivo": "Superestrella - Aitana.mp3",
+      "tipo_planificacion": "hora",
+      "habilitada": true,
+      "archivado": false,
+      "duracion": "N/A",
+      "hora": "10:00"
+    }
+  ],
+  "estado_reproduccion": {
+    "reproduciendo": false,
+    "cancion_actual": null,
+    "fecha_ultima_actualizacion": "2026-01-29T10:47:46.903265"
+  }
+}

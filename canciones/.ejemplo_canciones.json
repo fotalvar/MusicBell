@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "nombre": "Himno Nacional",
+    "archivo": "himno.mp3",
+    "tipo_planificacion": "hora",
+    "hora": "08:00",
+    "habilitada": true
+  },
+  {
+    "id": 2,
+    "nombre": "Recreo - Viernes",
+    "archivo": "musica_recreo.mp3",
+    "tipo_planificacion": "dia_semana",
+    "dias": ["viernes"],
+    "hora": "12:00",
+    "habilitada": true
+  },
+  {
+    "id": 3,
+    "nombre": "Evento Especial",
+    "archivo": "evento_especial.mp3",
+    "tipo_planificacion": "fecha",
+    "fecha": "2026-02-14",
+    "hora": "15:30",
+    "habilitada": false
+  }
+]
