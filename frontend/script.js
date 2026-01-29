@@ -221,7 +221,7 @@ async function cargarCanciones() {
 async function cargarEstado() {
   try {
     const response = await fetchAPI(`${API_URL}/estado`);
-    const cancionActual = response.cancion_actual || "Parado";
+    const cancionActual = (response.cancion_actual || "Parado").trim();
     document.getElementById("estadoCancionActual").textContent = cancionActual;
     actualizarPlayerWidget(cancionActual);
   } catch (error) {
@@ -234,11 +234,16 @@ function actualizarPlayerWidget(cancionActual) {
 
   // Si no se proporciona cancionActual, obtener del estado actual
   if (cancionActual === undefined) {
-    cancionActual =
-      document.getElementById("estadoCancionActual")?.textContent || "Parado";
+    cancionActual = (
+      document.getElementById("estadoCancionActual")?.textContent || "Parado"
+    ).trim();
+  } else {
+    cancionActual = (cancionActual || "Parado").trim();
   }
 
-  if (cancionActual && cancionActual !== "Parado") {
+  console.log("Actualizando widget con cancionActual:", cancionActual);
+
+  if (cancionActual && cancionActual !== "Parado" && cancionActual.length > 0) {
     // Canción reproduciéndose
     playerContent.innerHTML = `
       <div class="player-playing">
@@ -247,23 +252,30 @@ function actualizarPlayerWidget(cancionActual) {
       </div>
     `;
   } else {
-    // No hay canción reproduciéndose - mostrar próxima programada
+    // No hay canción reproduciéndose - mostrar próxima programada con botón STOP
     const proximaCancion = obtenerProximaCancionProgramada();
     if (proximaCancion) {
       playerContent.innerHTML = `
-        <div class="player-info">
-          <p>Próxima: <strong>${proximaCancion}</strong></p>
+        <div class="player-content-wrapper">
+          <div class="player-info">
+            <p>Próxima: <strong>${proximaCancion}</strong></p>
+          </div>
+          <button class="btn-player-stop" onclick="detenerCancion()">STOP</button>
         </div>
       `;
     } else {
       playerContent.innerHTML = `
-        <div class="player-info">
-          <p>Próxima canción programada: Ninguna</p>
+        <div class="player-content-wrapper">
+          <div class="player-info">
+            <p>Próxima canción programada: Ninguna</p>
+          </div>
+          <button class="btn-player-stop" onclick="detenerCancion()">STOP</button>
         </div>
       `;
     }
   }
 }
+
 function obtenerProximaCancionProgramada() {
   if (!canciones || canciones.length === 0) return null;
 
@@ -337,9 +349,19 @@ function renderizarPlaylist() {
             // Comparar fecha + hora
             let yaReproducida = false;
             if (fechaObj && cancion.hora) {
-              const [horas, minutos] = cancion.hora.split(":");
-              fechaObj.setHours(parseInt(horas), parseInt(minutos), 0, 0);
-              yaReproducida = fechaObj < ahora;
+              try {
+                const [horas, minutos] = cancion.hora.split(":");
+                if (horas !== undefined && minutos !== undefined) {
+                  const horasNum = parseInt(horas);
+                  const minutosNum = parseInt(minutos);
+                  if (!isNaN(horasNum) && !isNaN(minutosNum)) {
+                    fechaObj.setHours(horasNum, minutosNum, 0, 0);
+                    yaReproducida = fechaObj < ahora;
+                  }
+                }
+              } catch (e) {
+                console.error("Error procesando hora:", cancion.hora, e);
+              }
             } else if (fechaObj) {
               yaReproducida = fechaObj < ahora;
             }
