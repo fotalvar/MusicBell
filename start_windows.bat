@@ -30,6 +30,14 @@ if not exist "backend\venv" (
     cd backend
     python -m venv venv
     call venv\Scripts\activate.bat
+    pip install --upgrade pip
+    pip install -r requirements.txt
+    cd ..
+) else (
+    REM Actualizar pip incluso si venv ya existe
+    cd backend
+    call venv\Scripts\activate.bat
+    pip install --upgrade pip
     pip install -r requirements.txt
     cd ..
 )
