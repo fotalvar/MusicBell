@@ -129,7 +129,7 @@ function inicializarPanelEstado() {
   document.addEventListener("click", (e) => {
     const panel = document.getElementById("panelEstado");
     const btnEstado = document.getElementById("btnEstado");
-    
+
     if (!panel.contains(e.target) && !btnEstado.contains(e.target)) {
       panel.classList.remove("mostrado");
     }
