@@ -53,6 +53,7 @@ MusicBell/
 ## 🚀 Inicio Rápido (60 segundos)
 
 ### Requisitos Previos
+
 - **Python 3.8+**
 - **pip** (gestor de paquetes)
 - **Navegador moderno** (Chrome, Firefox, Safari, Edge)
@@ -60,6 +61,7 @@ MusicBell/
 ### Instalación y Ejecución
 
 **macOS/Linux:**
+
 ```bash
 # 1. Instalar dependencias
 pip install -r backend/requirements.txt
@@ -71,49 +73,55 @@ mkdir -p canciones
 python backend/app.py
 ```
 
-**Windows (PowerShell):**
+**Windows:**
+
 ```powershell
-# 1. Instalar dependencias
+# Opción 1: Doble clic en los archivos (Más fácil)
+1. Ejecuta: install_requirements.bat
+2. Luego: run.bat
+
+# Opción 2: Línea de comandos
 pip install -r backend\requirements.txt
-
-# 2. Crear carpeta de canciones
 mkdir canciones
-
-# 3. Ejecutar (opción 1: Python directo)
-python backend/app.py
-
-# O (opción 2: Script batch)
-.\start_windows.bat
+python backend\app.py
 ```
 
+👉 **[Guía completa de instalación Windows →](INSTALACION_WINDOWS_NUEVA.md)**
+
 ### Acceso a la Interfaz
+
 - Abrir navegador: **http://localhost:5000**
 - La aplicación estará lista inmediatamente
 
 ## 📋 Funcionalidades Principales
 
 ### 1. **Playlist** (Tab 1)
+
 - Vista de todas las canciones programadas
 - Editar fecha y hora en tiempo real
 - Ordenadas automáticamente por fecha/hora
 - Eliminar canciones fácilmente
 
 ### 2. **Reproducción Rápida** (Tab 2)
+
 - Reproducir cualquier MP3 de la carpeta `canciones/`
 - Instantáneamente sin programación
 - Ideal para pruebas y reproducciones manuales
 
 ### 3. **Archivado** (Tab 3)
+
 - Canciones pasadas se archivan automáticamente
 - Vista histórica completa
 - Poder recuperar si es necesario
 
 ### 4. **Conflictos** (Tab 4)
+
 - Detecta múltiples canciones a la misma hora
 - Considera duración del MP3
 - Útil para evitar traslapes
 
 ### 5. **Estado Rápido**
+
 - Barra de estado permanente (fuera de tabs)
 - Botón STOP para detener reproducción actual
 - Información en tiempo real
@@ -121,6 +129,7 @@ python backend/app.py
 ## 🔧 Uso Detallado
 
 ### Agregar una Canción Programada
+
 1. Click en **"Añadir Canción"**
 2. Nombre descriptivo
 3. Seleccionar archivo MP3
@@ -131,6 +140,7 @@ python backend/app.py
 5. Click en **"Agregar Canción"**
 
 ### Programación Rápida
+
 1. Click en **"Programación Rápida"**
 2. Seleccionar rango de fechas
 3. Elegir hora de reproducción
@@ -139,6 +149,7 @@ python backend/app.py
 6. Click en **"Generar Programación"**
 
 ### Reproducción Manual
+
 1. Ir a tab **"Reproducción"**
 2. Seleccionar canción de la lista
 3. Click en **"Reproducir"**
@@ -147,6 +158,7 @@ python backend/app.py
 ## 📊 Estructura de Datos
 
 ### Archivo `config/canciones.json`
+
 ```json
 {
   "canciones": [
@@ -175,20 +187,21 @@ Documentación completa en [DESARROLLO.md](DESARROLLO.md)
 
 ### Endpoints Principales
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/canciones` | Obtener todas las canciones |
-| `POST` | `/api/canciones` | Crear nueva canción |
-| `PUT` | `/api/canciones/{id}` | Actualizar canción |
-| `DELETE` | `/api/canciones/{id}` | Eliminar canción |
-| `GET` | `/api/archivos` | Listar MP3 disponibles |
-| `POST` | `/api/reproducir/{archivo}` | Reproducir archivo |
-| `POST` | `/api/detener` | Detener reproducción |
-| `GET` | `/api/detectar-conflictos` | Verificar solapamientos |
+| Método   | Endpoint                    | Descripción                 |
+| -------- | --------------------------- | --------------------------- |
+| `GET`    | `/api/canciones`            | Obtener todas las canciones |
+| `POST`   | `/api/canciones`            | Crear nueva canción         |
+| `PUT`    | `/api/canciones/{id}`       | Actualizar canción          |
+| `DELETE` | `/api/canciones/{id}`       | Eliminar canción            |
+| `GET`    | `/api/archivos`             | Listar MP3 disponibles      |
+| `POST`   | `/api/reproducir/{archivo}` | Reproducir archivo          |
+| `POST`   | `/api/detener`              | Detener reproducción        |
+| `GET`    | `/api/detectar-conflictos`  | Verificar solapamientos     |
 
 ## 🎨 Optimizaciones Realizadas
 
 ### Frontend (JavaScript)
+
 - **-37% líneas de código** - Eliminación de duplicación
 - **Caching de archivos** (30s TTL) - Menos llamadas API
 - **Debounce en funciones** - Mejor rendimiento
@@ -196,11 +209,13 @@ Documentación completa en [DESARROLLO.md](DESARROLLO.md)
 - **DOM cacheado** - Acceso más rápido
 
 ### Frontend (CSS)
+
 - **-48% líneas de código** - Consolidación de estilos
 - **Variables CSS centralizadas** - Mantenimiento más fácil
 - **Sin especificidad conflictiva** - CSS más limpio
 
 ### Backend (Python)
+
 - **Modularización** - `utils.py` para funciones compartidas
 - **Documentación mejorada** - Docstrings completos
 - **Gestión de importaciones** - Sin dependencias innecesarias
@@ -226,22 +241,23 @@ Más preguntas en [FAQ.md](FAQ.md).
 ## 🛠️ Desarrollo
 
 Para desarrolladores, ver:
+
 - [DESARROLLO.md](DESARROLLO.md) - Arquitectura y guía de desarrollo
 - [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) - Formato de configuración
 - [OPTIMIZATION_SUMMARY.md](OPTIMIZATION_SUMMARY.md) - Detalles de optimizaciones
 
 ## 📝 Documentación
 
-| Documento | Propósito |
-|-----------|----------|
-| **[GUIA_RAPIDA.md](GUIA_RAPIDA.md)** | Inicio en 60 segundos |
-| **[INDEX.md](INDEX.md)** | Índice completo de docs |
-| **[FAQ.md](FAQ.md)** | Preguntas frecuentes |
-| **[INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md)** | Instalación Windows |
-| **[ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md)** | Formato JSON |
-| **[DESARROLLO.md](DESARROLLO.md)** | Arquitectura técnica |
+| Documento                                              | Propósito                 |
+| ------------------------------------------------------ | ------------------------- |
+| **[GUIA_RAPIDA.md](GUIA_RAPIDA.md)**                   | Inicio en 60 segundos     |
+| **[INDEX.md](INDEX.md)**                               | Índice completo de docs   |
+| **[FAQ.md](FAQ.md)**                                   | Preguntas frecuentes      |
+| **[INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md)**   | Instalación Windows       |
+| **[ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md)**         | Formato JSON              |
+| **[DESARROLLO.md](DESARROLLO.md)**                     | Arquitectura técnica      |
 | **[OPTIMIZATION_SUMMARY.md](OPTIMIZATION_SUMMARY.md)** | Optimizaciones realizadas |
-| **[PALETA_COLORES.md](PALETA_COLORES.md)** | Colores de UI |
+| **[PALETA_COLORES.md](PALETA_COLORES.md)**             | Colores de UI             |
 
 ## 🔒 Consideraciones de Seguridad
 
@@ -253,6 +269,7 @@ Para desarrolladores, ver:
 ## 📦 Dependencias
 
 ### Backend
+
 ```
 Flask==2.3.0
 Flask-CORS==4.0.0
@@ -261,6 +278,7 @@ mutagen==1.46.0
 ```
 
 ### Frontend
+
 - Vanilla JavaScript (sin frameworks)
 - CSS3 (sin preprocesadores)
 - HTML5 semántico
@@ -287,7 +305,6 @@ Para reportar bugs o sugerencias, revisar la sección de [FAQ.md](FAQ.md) primer
 **Última actualización:** 29 de enero de 2026  
 **Versión:** 2.0 (Optimizada)  
 **Estado:** ✅ Completamente funcional y optimizado
-
 
 ```bash
 # Navegar a la carpeta del proyecto
@@ -336,11 +353,13 @@ O haz doble clic en `start_windows.bat` (próximamente disponible)
 - Verás 4 secciones principales:
 
 #### Estado Actual
+
 - Muestra si se está reproduciendo alguna canción
 - Canción actualmente en reprodución
 - Última actualización
 
 #### Añadir Nueva Canción
+
 1. Ingresa un nombre descriptivo
 2. Selecciona el archivo MP3
 3. Elige el tipo de planificación:
@@ -351,12 +370,14 @@ O haz doble clic en `start_windows.bat` (próximamente disponible)
 5. Haz clic en "Agregar Canción"
 
 #### Canciones Programadas
+
 - Lista todas las canciones guardadas
 - Muestra detalles de cada canción
 - Permite editar o eliminar canciones
 - Indica si está habilitada o deshabilitada
 
 #### Verificar Conflictos
+
 - Detecta si hay múltiples canciones programadas para el mismo momento
 - Muestra agrupadas por hora
 - Útil para resolver solapamientos
@@ -399,6 +420,7 @@ El archivo `config/canciones.json` contiene:
 ### Log de Actividad
 
 Los logs se guardan en `logs/musicbell.log` con toda la actividad:
+
 - Canciones reproducidas
 - Errores
 - Conflictos detectados
@@ -415,16 +437,19 @@ Si la computadora se apaga o reinicia:
 ## Resolución de Problemas
 
 ### Los archivos MP3 no se muestran
+
 - Asegúrate de que están en la carpeta `canciones/`
 - Verifica que la extensión sea `.mp3` (minúscula)
 - Reinicia la aplicación
 
 ### No se reproduce sonido
+
 **Windows**: Asegúrate de que `winsound` esté disponible
 **macOS**: Verifica permisos de audio, ejecuta: `sudo chmod +x backend/music_player.py`
 **Linux**: Instala ffplay: `sudo apt-get install ffmpeg`
 
 ### La aplicación se detiene
+
 - Revisa `logs/musicbell.log` para errores
 - Asegúrate de que Python tiene permisos de ejecución
 
@@ -439,6 +464,7 @@ Si la computadora se apaga o reinicia:
 ## Soporte Técnico
 
 Para reportar problemas:
+
 1. Revisa los logs en `logs/musicbell.log`
 2. Verifica que tengas Python 3.8+ instalado
 3. Asegúrate de que los archivos MP3 sean válidos

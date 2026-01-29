@@ -1,0 +1,58 @@
+# 🎵 MusicBell - Instalador Rápido para Windows
+
+## ✅ ¿Qué necesitas?
+
+- Windows 7 o superior
+- Python 3.8+ instalado ([Descargar](https://www.python.org/downloads/))
+
+## 🚀 Instalación en 2 Pasos
+
+### 1️⃣ Instalar Requisitos
+```
+Haz doble clic en: install_requirements.bat
+```
+Espera a ver: `✅ INSTALACIÓN COMPLETADA`
+
+### 2️⃣ Ejecutar la Aplicación
+```
+Haz doble clic en: run.bat
+```
+Luego abre tu navegador en: `http://localhost:5000`
+
+---
+
+## 📦 ¿Qué instalan los scripts?
+
+**install_requirements.bat:**
+- Verifica Python
+- Instala: Flask, Flask-CORS, python-dotenv, mutagen
+- Crea la carpeta: canciones/
+- Verifica que todo está correcto
+
+**run.bat:**
+- Verifica que Python está disponible
+- Verifica que las dependencias están instaladas
+- Inicia el servidor en: http://localhost:5000
+
+---
+
+## 🎯 Próximos Pasos
+
+1. **Añade canciones:**
+   - Copia archivos `.mp3` a la carpeta `canciones/`
+
+2. **Usa la aplicación:**
+   - Accede a `http://localhost:5000` desde tu navegador
+
+3. **Detén el servidor:**
+   - Presiona `Ctrl+C` en la ventana del terminal
+
+---
+
+## ❓ ¿Problemas?
+
+👉 Lee [INSTALACION_WINDOWS_NUEVA.md](INSTALACION_WINDOWS_NUEVA.md)
+
+---
+
+**¡Listo para usar!** 🎉

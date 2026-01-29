@@ -1,4 +1,4 @@
-#!/bin/bash
+`#!/bin/bash
 # Script de inicio para MusicBell en macOS/Linux
 
 echo "================================================"
