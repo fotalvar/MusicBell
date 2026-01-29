@@ -96,10 +96,6 @@ function conectarEventos() {
       generarProgramacionRapida,
     );
   }
-  const btnConflictos = document.getElementById("btnConflictos");
-  if (btnConflictos) {
-    btnConflictos.addEventListener("click", detectarConflictos);
-  }
   const uploadArea = document.getElementById("uploadArea");
   if (uploadArea) {
     uploadArea.addEventListener("click", () => {
@@ -221,8 +217,9 @@ async function cargarCanciones() {
 async function cargarEstado() {
   try {
     const response = await fetchAPI(`${API_URL}/estado`);
-    const cancionActual = (response.cancion_actual || "Parado").trim();
-    document.getElementById("estadoCancionActual").textContent = cancionActual;
+    console.log("Respuesta de estado:", response);
+    const cancionActual = (response.cancion_actual || "").trim();
+    console.log("Canción actual obtenida:", cancionActual);
     actualizarPlayerWidget(cancionActual);
   } catch (error) {
     console.error("Error cargando estado:", error);
@@ -232,18 +229,16 @@ function actualizarPlayerWidget(cancionActual) {
   const playerContent = document.getElementById("playerContent");
   if (!playerContent) return;
 
-  // Si no se proporciona cancionActual, obtener del estado actual
+  // Si no se proporciona cancionActual, dejarlo vacío/parado
   if (cancionActual === undefined) {
-    cancionActual = (
-      document.getElementById("estadoCancionActual")?.textContent || "Parado"
-    ).trim();
+    cancionActual = "";
   } else {
-    cancionActual = (cancionActual || "Parado").trim();
+    cancionActual = (cancionActual || "").trim();
   }
 
   console.log("Actualizando widget con cancionActual:", cancionActual);
 
-  if (cancionActual && cancionActual !== "Parado" && cancionActual.length > 0) {
+  if (cancionActual && cancionActual.length > 0) {
     // Canción reproduciéndose
     playerContent.innerHTML = `
       <div class="player-playing">
@@ -255,22 +250,24 @@ function actualizarPlayerWidget(cancionActual) {
     // No hay canción reproduciéndose - mostrar próxima programada con botón STOP
     const proximaCancion = obtenerProximaCancionProgramada();
     if (proximaCancion) {
+      const fechaFormato = formatarFecha(proximaCancion.fecha);
       playerContent.innerHTML = `
         <div class="player-content-wrapper">
           <div class="player-info">
-            <p>Próxima: <strong>${proximaCancion}</strong></p>
+            <p style="font-size: 0.65em; color: #fff; margin: 0 0 6px 0;">Próxima canción programada: <strong>${fechaFormato}</strong></p>
+            <p style="font-size: 1em; font-weight: bold; margin: 0;">${proximaCancion.nombre}</p>
           </div>
-          <button class="btn-player-stop" onclick="detenerCancion()">STOP</button>
         </div>
+        <button class="btn-player-stop" onclick="detenerCancion()">STOP</button>
       `;
     } else {
       playerContent.innerHTML = `
         <div class="player-content-wrapper">
           <div class="player-info">
-            <p>Próxima canción programada: Ninguna</p>
+            <p style="font-size: 0.85em; margin: 0;">Próxima canción programada: Ninguna</p>
           </div>
-          <button class="btn-player-stop" onclick="detenerCancion()">STOP</button>
         </div>
+        <button class="btn-player-stop" onclick="detenerCancion()">STOP</button>
       `;
     }
   }
@@ -295,7 +292,11 @@ function obtenerProximaCancionProgramada() {
   });
 
   if (proximasCanciones.length > 0) {
-    return proximasCanciones[0].archivo.replace(/\.mp3$/i, "");
+    const proximaCancion = proximasCanciones[0];
+    return {
+      nombre: proximaCancion.archivo.replace(/\.mp3$/i, ""),
+      fecha: proximaCancion.fecha,
+    };
   }
   return null;
 }
@@ -529,6 +530,7 @@ function editarCelda(cell, campo, id) {
         body: JSON.stringify({ [campo]: nuevoValor || null }),
       });
       await cargarCanciones();
+      await actualizarPlayerWidget();
     } catch (error) {
       console.error("Error al guardar:", error);
       cell.innerHTML = `<span>${valor}</span>`;
@@ -754,36 +756,6 @@ async function generarProgramacionRapida(e) {
   );
   cerrarModalProgramacion();
   await cargarCanciones();
-}
-async function detectarConflictos() {
-  try {
-    const response = await fetchAPI(`${API_URL}/detectar-conflictos`);
-    const conflictosContent = document.getElementById("conflictosContent");
-    if (!response.conflictos || Object.keys(response.conflictos).length === 0) {
-      conflictosContent.innerHTML =
-        '<p style="color: green; font-weight: bold;">✓ No hay conflictos detectados</p>';
-      return;
-    }
-    let html =
-      '<p style="color: red; font-weight: bold;">⚠ Se detectaron conflictos:</p>';
-    html += '<div style="display: grid; gap: 10px;">';
-    for (const [horario, cancionesConflicto] of Object.entries(
-      response.conflictos,
-    )) {
-      html += `
-                <div style="background: #ffe8e8; padding: 15px; border-radius: 8px; border-left: 4px solid red;">
-                    <strong>${horario}</strong>
-                    <ul>
-                        ${cancionesConflicto.map((c) => `<li>${c}</li>`).join("")}
-                    </ul>
-                </div>
-            `;
-    }
-    html += "</div>";
-    conflictosContent.innerHTML = html;
-  } catch (error) {
-    alert("Error detectando conflictos: " + error.message);
-  }
 }
 function toggleEstadoPanel() {
   const panel = document.getElementById("panelEstado");

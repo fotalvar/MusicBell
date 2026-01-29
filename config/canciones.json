@@ -1,42 +1,75 @@
 {
   "canciones": [
     {
-      "id": 7,
+      "id": 4,
       "nombre": "Canción programada - 3/2/2026",
+      "archivo": "APT.mp3",
+      "tipo_planificacion": "fecha",
+      "habilitada": true,
+      "archivado": false,
+      "duracion": "02:53",
+      "hora": "16:48",
+      "fecha": "2026-01-29"
+    },
+    {
+      "id": 5,
+      "nombre": "Canción programada - 4/2/2026",
       "archivo": "All I Want for Christmas is You.mp3",
       "tipo_planificacion": "fecha",
       "habilitada": true,
       "archivado": false,
       "duracion": "04:02",
-      "hora": "16:25",
-      "fecha": "2026-01-29"
+      "hora": "16:35",
+      "fecha": "2026-02-04"
     },
     {
-      "id": 9,
+      "id": 6,
       "nombre": "Canción programada - 5/2/2026",
+      "archivo": "Superestrella - Aitana.mp3",
+      "tipo_planificacion": "fecha",
+      "habilitada": true,
+      "archivado": false,
+      "duracion": "03:01",
+      "hora": "16:35",
+      "fecha": "2026-02-05"
+    },
+    {
+      "id": 7,
+      "nombre": "Canción programada - 6/2/2026",
       "archivo": "Golden.mp3",
       "tipo_planificacion": "fecha",
       "habilitada": true,
       "archivado": false,
       "duracion": "03:38",
-      "hora": "10:00",
-      "fecha": "2026-02-05"
+      "hora": "16:35",
+      "fecha": "2026-02-06"
     },
     {
-      "id": 4,
-      "nombre": "Trailer",
+      "id": 8,
+      "nombre": "Canción programada - 9/2/2026",
       "archivo": "trailer-132814.mp3",
       "tipo_planificacion": "fecha",
       "habilitada": true,
       "archivado": false,
       "duracion": "01:03",
-      "hora": "16:33",
-      "fecha": "2026-01-29"
+      "hora": "16:35",
+      "fecha": "2026-02-09"
+    },
+    {
+      "id": 9,
+      "nombre": "Canción programada - 10/2/2026",
+      "archivo": "APT.mp3",
+      "tipo_planificacion": "fecha",
+      "habilitada": true,
+      "archivado": false,
+      "duracion": "02:53",
+      "hora": "16:35",
+      "fecha": "2026-02-10"
     }
   ],
   "estado_reproduccion": {
     "reproduciendo": true,
-    "cancion_actual": "Trailer",
-    "fecha_ultima_actualizacion": "2026-01-29T16:27:06.557425"
+    "cancion_actual": "Canción programada - 3/2/2026",
+    "fecha_ultima_actualizacion": "2026-01-29T16:48:06.207006"
   }
 }

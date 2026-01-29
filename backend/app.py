@@ -206,8 +206,10 @@ def reproducir_cancion(nombre_archivo):
         
         scheduler.play_song(str(song_path))
         scheduler.load_config()
+        # Guardar el archivo sin la extensión .mp3
+        archivo_sin_ext = nombre_archivo.replace('.mp3', '').replace('.MP3', '')
         scheduler.config['estado_reproduccion']['reproduciendo'] = True
-        scheduler.config['estado_reproduccion']['cancion_actual'] = nombre_archivo
+        scheduler.config['estado_reproduccion']['cancion_actual'] = archivo_sin_ext
         scheduler.config['estado_reproduccion']['fecha_ultima_actualizacion'] = datetime.now().isoformat()
         scheduler.save_config()
         

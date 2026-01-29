@@ -199,10 +199,11 @@ class MusicScheduler:
                             logger.info(f"Reproduciendo: {song_data.get('nombre')}")
                             self.play_song(song_file)
                             
-                            # Actualizar estado
+                            # Actualizar estado - guardar el archivo sin la extensión .mp3
+                            archivo_sin_ext = song_data.get('archivo', '').replace('.mp3', '').replace('.MP3', '')
                             self.config['estado_reproduccion'] = {
                                 'reproduciendo': True,
-                                'cancion_actual': song_data.get('nombre'),
+                                'cancion_actual': archivo_sin_ext,
                                 'fecha_ultima_actualizacion': datetime.now().isoformat()
                             }
                             self.save_config()
