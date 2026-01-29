@@ -482,7 +482,8 @@ function abrirModalProgramacion() {
   // Cargar archivos en el selector de programación
   const selectArchivo = document.getElementById("archivoProgramacion");
   if (selectArchivo && archivosDisponibles && archivosDisponibles.length > 0) {
-    selectArchivo.innerHTML = '<option value="">-- Selecciona un archivo --</option>';
+    selectArchivo.innerHTML =
+      '<option value="">-- Selecciona uno o más archivos --</option>';
     archivosDisponibles.forEach((archivo) => {
       const option = document.createElement("option");
       option.value = archivo.nombre;
@@ -603,10 +604,12 @@ function actualizarResumenProgramacion() {
   const fechaInicio = new Date(document.getElementById("fechaInicio").value);
   const fechaFin = new Date(document.getElementById("fechaFin").value);
   const incluirFinSemana = document.getElementById("incluirFinSemana").checked;
-  const archivo = document.getElementById("archivoProgramacion").value;
-  if (!archivo) {
+  const selectArchivo = document.getElementById("archivoProgramacion");
+  const archivosSeleccionados = Array.from(selectArchivo.selectedOptions).map(opt => opt.value);
+  
+  if (archivosSeleccionados.length === 0) {
     document.getElementById("resumenProgramacion").innerHTML =
-      '<p style="color: #999; margin: 0;">Selecciona un archivo primero</p>';
+      '<p style="color: #999; margin: 0;">Selecciona al menos un archivo</p>';
     return;
   }
   if (!fechaInicio || !fechaFin || fechaInicio > fechaFin) {
@@ -623,28 +626,40 @@ function actualizarResumenProgramacion() {
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  const mensaje = count === 0 
-    ? 'No hay días seleccionados'
-    : `<span style="color: #4caf50; font-weight: bold;">✓ Se programarán ${count} canción(es)</span><br><span style="font-size: 0.85em; color: #666;">Del ${fechaInicio.toLocaleDateString("es-ES")} al ${fechaFin.toLocaleDateString("es-ES")}</span>`;
+  const totalCanciones = count * archivosSeleccionados.length;
+  const mensaje =
+    count === 0
+      ? "No hay días seleccionados"
+      : `<span style="color: #4caf50; font-weight: bold;">✓ Se programarán ${totalCanciones} canción(es)</span><br><span style="font-size: 0.85em; color: #666;">${archivosSeleccionados.length} archivo(s) × ${count} día(s)</span><br><span style="font-size: 0.85em; color: #666;">Del ${fechaInicio.toLocaleDateString("es-ES")} al ${fechaFin.toLocaleDateString("es-ES")}</span>`;
   document.getElementById("resumenProgramacion").innerHTML = mensaje;
 }
 async function generarProgramacionRapida(e) {
   e.preventDefault();
-  const archivo = document.getElementById("archivoProgramacion").value;
-  const nombreBase = document.getElementById("nombre").value || "Canción programada";
-  if (!archivo) {
-    alert("Por favor selecciona un archivo");
+  const selectArchivo = document.getElementById("archivoProgramacion");
+  const archivosSeleccionados = Array.from(selectArchivo.selectedOptions).map(opt => opt.value);
+  
+  if (archivosSeleccionados.length === 0) {
+    alert("Por favor selecciona al menos un archivo");
     return;
   }
+  
+  const nombreBase = document.getElementById("nombre").value || "Canción programada";
   const fechaInicio = new Date(document.getElementById("fechaInicio").value);
   const fechaFin = new Date(document.getElementById("fechaFin").value);
   const horaRapida = document.getElementById("horaRapida").value;
   const incluirFinSemana = document.getElementById("incluirFinSemana").checked;
+  
   const currentDate = new Date(fechaInicio);
   let cancionesCreadas = 0;
+  let indiceArchivo = 0;
+  
   while (currentDate <= fechaFin) {
     const dayOfWeek = currentDate.getDay();
     if (incluirFinSemana || (dayOfWeek !== 0 && dayOfWeek !== 6)) {
+      // Seleccionar archivo y avanzar al siguiente (con repetición)
+      const archivo = archivosSeleccionados[indiceArchivo % archivosSeleccionados.length];
+      indiceArchivo++;
+      
       const data = {
         nombre: `${nombreBase} - ${currentDate.toLocaleDateString("es-ES")}`,
         archivo,
@@ -653,6 +668,7 @@ async function generarProgramacionRapida(e) {
         fecha: currentDate.toISOString().split("T")[0],
         habilitada: true,
       };
+      
       try {
         await fetchAPI(`${API_URL}/canciones`, {
           method: "POST",
@@ -665,7 +681,8 @@ async function generarProgramacionRapida(e) {
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  alert(`¡${cancionesCreadas} canciones programadas exitosamente!`);
+  
+  alert(`¡${cancionesCreadas} canciones programadas exitosamente! (${archivosSeleccionados.length} archivo(s))`);
   cerrarModalProgramacion();
   await cargarCanciones();
 }
