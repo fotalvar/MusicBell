@@ -269,6 +269,16 @@ body {
   font-weight: 600;
   transition: all 0.3s ease;
   font-size: 0.95em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-agregar svg,
+.btn-programacion-rapida svg,
+.btn-check svg {
+  width: 18px;
+  height: 18px;
 }
 .btn-guardar:hover,
 .btn-agregar:hover,
