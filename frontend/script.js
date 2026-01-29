@@ -42,7 +42,10 @@ function formatarTamaño(bytes) {
 function formatarFecha(fechaIso) {
   if (!fechaIso) return "N/A";
   const fecha = new Date(fechaIso);
-  return fecha.toLocaleString("es-ES");
+  const dia = String(fecha.getDate()).padStart(2, "0");
+  const mes = String(fecha.getMonth() + 1).padStart(2, "0");
+  const año = fecha.getFullYear();
+  return `${dia}/${mes}/${año}`;
 }
 function obtenerNombreDia(fecha) {
   const dias = [
@@ -63,6 +66,7 @@ document.addEventListener("DOMContentLoaded", function () {
 async function inicializar() {
   console.log("Inicializando aplicación...");
   conectarEventos();
+  inicializarPanelEstado();
   await cargarArchivos();
   await cargarCanciones();
   await cargarEstado();
@@ -120,6 +124,17 @@ function conectarEventos() {
       .addEventListener("change", actualizarResumenProgramacion);
   }
 }
+function inicializarPanelEstado() {
+  // Cerrar el panel si se hace clic fuera de él
+  document.addEventListener("click", (e) => {
+    const panel = document.getElementById("panelEstado");
+    const btnEstado = document.getElementById("btnEstado");
+    
+    if (!panel.contains(e.target) && !btnEstado.contains(e.target)) {
+      panel.classList.remove("mostrado");
+    }
+  });
+}
 function cambiarTab(tabName) {
   console.log("Cambiando a pestaña:", tabName);
   document.querySelectorAll(".tab-pane").forEach((tab) => {
@@ -158,8 +173,6 @@ function actualizarSubbarra(tab) {
         `;
   } else if (tab === "reproduccion") {
     html = `<p style="margin: 0; color: #666; font-size: 0.9em;">Selecciona una canción para reproducir</p>`;
-  } else if (tab === "archivado") {
-    html = `<p style="margin: 0; color: #666; font-size: 0.9em;">Canciones marcadas como archivadas</p>`;
   } else if (tab === "conflictos") {
     html = `<p style="margin: 0; color: #666; font-size: 0.9em;">Verifica los conflictos de horario</p>`;
   }
@@ -200,6 +213,7 @@ async function cargarCanciones() {
     const response = await fetchAPI(`${API_URL}/canciones`);
     canciones = response;
     renderizarPlaylist();
+    actualizarPlayerWidget();
   } catch (error) {
     console.error("Error cargando canciones:", error);
   }
@@ -209,9 +223,69 @@ async function cargarEstado() {
     const response = await fetchAPI(`${API_URL}/estado`);
     const cancionActual = response.cancion_actual || "Parado";
     document.getElementById("estadoCancionActual").textContent = cancionActual;
+    actualizarPlayerWidget(cancionActual);
   } catch (error) {
     console.error("Error cargando estado:", error);
   }
+}
+function actualizarPlayerWidget(cancionActual) {
+  const playerContent = document.getElementById("playerContent");
+  if (!playerContent) return;
+
+  // Si no se proporciona cancionActual, obtener del estado actual
+  if (cancionActual === undefined) {
+    cancionActual =
+      document.getElementById("estadoCancionActual")?.textContent || "Parado";
+  }
+
+  if (cancionActual && cancionActual !== "Parado") {
+    // Canción reproduciéndose
+    playerContent.innerHTML = `
+      <div class="player-playing">
+        <div class="player-song-name">▶ ${cancionActual}</div>
+        <button class="btn-player-stop" onclick="detenerCancion()">STOP</button>
+      </div>
+    `;
+  } else {
+    // No hay canción reproduciéndose - mostrar próxima programada
+    const proximaCancion = obtenerProximaCancionProgramada();
+    if (proximaCancion) {
+      playerContent.innerHTML = `
+        <div class="player-info">
+          <p>Próxima: <strong>${proximaCancion}</strong></p>
+        </div>
+      `;
+    } else {
+      playerContent.innerHTML = `
+        <div class="player-info">
+          <p>Próxima canción programada: Ninguna</p>
+        </div>
+      `;
+    }
+  }
+}
+function obtenerProximaCancionProgramada() {
+  if (!canciones || canciones.length === 0) return null;
+
+  // Filtrar canciones que aún no han sonado
+  const proximasCanciones = canciones.filter((c) => {
+    if (!c.fecha) return false;
+    const fechaCancion = new Date(c.fecha);
+    const ahora = new Date();
+    return fechaCancion >= ahora;
+  });
+
+  // Ordenar por fecha
+  proximasCanciones.sort((a, b) => {
+    const fechaA = new Date(a.fecha);
+    const fechaB = new Date(b.fecha);
+    return fechaA - fechaB;
+  });
+
+  if (proximasCanciones.length > 0) {
+    return proximasCanciones[0].archivo.replace(/\.mp3$/i, "");
+  }
+  return null;
 }
 async function obtenerDatosRemoto() {
   try {
@@ -231,43 +305,56 @@ async function obtenerDatosRemoto() {
 function renderizarPlaylist() {
   const container = document.getElementById("playlistContainer");
   if (!container) return;
-  const cancionesActivas = canciones.filter((c) => !c.archivado);
+  const cancionesActivas = canciones;
   if (cancionesActivas.length === 0) {
     container.innerHTML = "<p>No hay canciones en la playlist</p>";
     return;
   }
   // Ordenar cronológicamente (por hora si existe, sino por nombre)
+  // Ordenar por fecha creciente
   cancionesActivas.sort((a, b) => {
-    if (a.hora && b.hora) return a.hora.localeCompare(b.hora);
-    return a.nombre.localeCompare(b.nombre);
+    const fechaA = a.fecha ? new Date(a.fecha) : new Date("2099-12-31");
+    const fechaB = b.fecha ? new Date(b.fecha) : new Date("2099-12-31");
+    return fechaA - fechaB;
   });
   const html = `
     <table class="tabla-playlist">
       <thead>
         <tr>
-          <th>Nombre</th>
-          <th>Hora</th>
+          <th>Tarea</th>
           <th>Fecha</th>
-          <th>Archivo</th>
+          <th>Hora</th>
           <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         ${cancionesActivas
-          .map(
-            (cancion) => `
-          <tr class="fila-cancion" data-id="${cancion.id}">
-            <td class="celda-nombre" ondblclick="editarCelda(this, 'nombre', ${cancion.id})"><span>${cancion.nombre}</span></td>
+          .map((cancion) => {
+            const nombreArchivo = cancion.archivo.replace(/\.mp3$/i, "");
+            const fechaObj = cancion.fecha ? new Date(cancion.fecha) : null;
+            const ahora = new Date();
+
+            // Comparar fecha + hora
+            let yaReproducida = false;
+            if (fechaObj && cancion.hora) {
+              const [horas, minutos] = cancion.hora.split(":");
+              fechaObj.setHours(parseInt(horas), parseInt(minutos), 0, 0);
+              yaReproducida = fechaObj < ahora;
+            } else if (fechaObj) {
+              yaReproducida = fechaObj < ahora;
+            }
+
+            return `
+          <tr class="fila-cancion ${yaReproducida ? "fila-reproducida" : ""}" data-id="${cancion.id}">
+            <td class="celda-nombre"><span>${nombreArchivo}</span></td>
+            <td class="celda-fecha" ondblclick="editarCelda(this, 'fecha', ${cancion.id})"><span>${cancion.fecha ? formatarFecha(cancion.fecha) : "-"}</span></td>
             <td class="celda-hora" ondblclick="editarCelda(this, 'hora', ${cancion.id})"><span>${cancion.hora || "-"}</span></td>
-            <td class="celda-fecha" ondblclick="editarCelda(this, 'fecha', ${cancion.id})"><span>${cancion.fecha ? cancion.fecha.split("T")[0] : "-"}</span></td>
-            <td class="celda-archivo">${cancion.archivo}</td>
             <td class="celda-acciones">
-              <button onclick="archivarCancion(${cancion.id})" class="btn-tabla btn-archivar" title="Archivar">📦</button>
               <button onclick="eliminarCancion(${cancion.id})" class="btn-tabla btn-eliminar" title="Eliminar">🗑️</button>
             </td>
           </tr>
-        `,
-          )
+        `;
+          })
           .join("")}
       </tbody>
     </table>
@@ -298,59 +385,14 @@ function renderizarReproduccion() {
   agregarEstilosCancionCard();
 }
 function renderizarArchivadas() {
-  const container = document.getElementById("archivadoContainer");
-  if (!container) return;
-  const cancionesArchivadas = canciones.filter((c) => c.archivado);
-  if (cancionesArchivadas.length === 0) {
-    container.innerHTML = "<p>No hay canciones archivadas</p>";
-    return;
-  }
-  // Ordenar cronológicamente (más recientes primero)
-  cancionesArchivadas.sort((a, b) => {
-    const fechaA = new Date(a.fecha_archivo || 0);
-    const fechaB = new Date(b.fecha_archivo || 0);
-    return fechaB - fechaA;
-  });
-  const html = `
-    <table class="tabla-archivado">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Fecha Archivada</th>
-          <th>Hora Original</th>
-          <th>Archivo</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${cancionesArchivadas
-          .map(
-            (cancion) => `
-          <tr class="fila-archivada" data-id="${cancion.id}">
-            <td class="celda-nombre"><span>${cancion.nombre}</span></td>
-            <td class="celda-fecha">${cancion.fecha_archivo ? cancion.fecha_archivo.split("T")[0] : "-"}</td>
-            <td class="celda-hora">${cancion.hora || "-"}</td>
-            <td class="celda-archivo">${cancion.archivo}</td>
-            <td class="celda-acciones">
-              <button onclick="desarchivarCancion(${cancion.id})" class="btn-tabla btn-restaurar" title="Restaurar">↩️</button>
-              <button onclick="eliminarCancion(${cancion.id})" class="btn-tabla btn-eliminar" title="Eliminar">🗑️</button>
-            </td>
-          </tr>
-        `,
-          )
-          .join("")}
-      </tbody>
-    </table>
-  `;
-  container.innerHTML = html;
-  agregarEstilosTabla();
+  // Función eliminada - no se usa archivado
 }
 function agregarEstilosTabla() {
   if (!document.getElementById("tabla-styles")) {
     const style = document.createElement("style");
     style.id = "tabla-styles";
     style.textContent = `
-      .tabla-playlist, .tabla-archivado {
+      .tabla-playlist {
         width: 100%;
         border-collapse: collapse;
         background: var(--white);
@@ -358,35 +400,39 @@ function agregarEstilosTabla() {
         border-radius: 8px;
         overflow: hidden;
         font-size: 0.9em;
+        table-layout: fixed;
       }
-      .tabla-playlist thead, .tabla-archivado thead {
+      .tabla-playlist thead {
         background: linear-gradient(135deg, #5b6dff 0%, #7c3aed 100%);
         color: var(--white);
         font-weight: 600;
       }
-      .tabla-playlist th, .tabla-archivado th {
+      .tabla-playlist th {
         padding: 12px 15px;
         text-align: left;
         border-bottom: 2px solid var(--gray-200);
       }
-      .tabla-playlist tbody tr, .tabla-archivado tbody tr {
+      .tabla-playlist tbody tr {
         border-bottom: 1px solid var(--gray-200);
         transition: all 0.2s ease;
       }
-      .tabla-playlist tbody tr:hover, .tabla-archivado tbody tr:hover {
+      .tabla-playlist tbody tr:hover {
         background-color: #f8f9fa;
       }
-      .tabla-playlist td, .tabla-archivado td {
+      .tabla-playlist td {
         padding: 12px 15px;
       }
       .celda-nombre, .celda-hora, .celda-fecha {
         cursor: pointer;
         position: relative;
       }
-      .celda-nombre:hover span::after, .celda-hora:hover span::after, .celda-fecha:hover span::after {
-        content: ' ✎';
-        color: var(--primary);
-        margin-left: 4px;
+      .celda-hora, .celda-fecha {
+        padding: 8px 12px;
+      }
+      .celda-hora:hover, .celda-fecha:hover {
+        border: 2px solid var(--primary);
+        border-radius: 4px;
+        padding: 6px 10px;
       }
       .celda-nombre input, .celda-hora input, .celda-fecha input {
         width: 95%;
@@ -395,6 +441,12 @@ function agregarEstilosTabla() {
         border-radius: 4px;
         font-size: 0.9em;
         font-family: inherit;
+      }
+      .fila-reproducida {
+        background-color: #d4f5e3;
+      }
+      .fila-reproducida:hover {
+        background-color: #c1eed6;
       }
       .celda-archivo {
         color: var(--gray-600);
@@ -574,20 +626,7 @@ async function eliminarCancion(id) {
   }
 }
 async function archivarCancion(id) {
-  try {
-    const cancion = canciones.find((c) => c.id === id);
-    if (!cancion) return;
-    await fetchAPI(`${API_URL}/canciones/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({
-        archivado: true,
-        fecha_archivo: new Date().toISOString(),
-      }),
-    });
-    await cargarCanciones();
-  } catch (error) {
-    alert("Error archivando canción: " + error.message);
-  }
+  // Función eliminada - no se usa archivado
 }
 async function desarchivarCancion(id) {
   try {
@@ -628,11 +667,11 @@ function actualizarResumenProgramacion() {
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  const totalCanciones = count * archivosSeleccionados.length;
+  const totalCanciones = count;
   const mensaje =
     count === 0
       ? "No hay días seleccionados"
-      : `<span style="color: #4caf50; font-weight: bold;">✓ Se programarán ${totalCanciones} canción(es)</span><br><span style="font-size: 0.85em; color: #666;">${archivosSeleccionados.length} archivo(s) × ${count} día(s)</span><br><span style="font-size: 0.85em; color: #666;">Del ${fechaInicio.toLocaleDateString("es-ES")} al ${fechaFin.toLocaleDateString("es-ES")}</span>`;
+      : `<span style="color: #4caf50; font-weight: bold;">✓ Se programarán ${totalCanciones} canción(es)</span><br><span style="font-size: 0.85em; color: #666;">${archivosSeleccionados.length} archivo(s) en rotativa × ${count} día(s)</span><br><span style="font-size: 0.85em; color: #666;">Del ${fechaInicio.toLocaleDateString("es-ES")} al ${fechaFin.toLocaleDateString("es-ES")}</span>`;
   document.getElementById("resumenProgramacion").innerHTML = mensaje;
 }
 async function generarProgramacionRapida(e) {
@@ -656,35 +695,33 @@ async function generarProgramacionRapida(e) {
 
   const currentDate = new Date(fechaInicio);
   let cancionesCreadas = 0;
+  let indiceCancion = 0;
 
   while (currentDate <= fechaFin) {
     const dayOfWeek = currentDate.getDay();
     if (incluirFinSemana || (dayOfWeek !== 0 && dayOfWeek !== 6)) {
-      // Crear una canción por cada archivo seleccionado para este día
-      for (let i = 0; i < archivosSeleccionados.length; i++) {
-        const archivo = archivosSeleccionados[i];
-        
-        // Añadir sufijo si hay múltiples archivos (1), (2), (3)...
-        const sufijo = archivosSeleccionados.length > 1 ? ` (${i + 1})` : "";
+      // Seleccionar el siguiente archivo de forma rotativa
+      const archivo =
+        archivosSeleccionados[indiceCancion % archivosSeleccionados.length];
 
-        const data = {
-          nombre: `${nombreBase} - ${currentDate.toLocaleDateString("es-ES")}${sufijo}`,
-          archivo,
-          tipo_planificacion: "fecha",
-          hora: horaRapida,
-          fecha: currentDate.toISOString().split("T")[0],
-          habilitada: true,
-        };
+      const data = {
+        nombre: `${nombreBase} - ${currentDate.toLocaleDateString("es-ES")}`,
+        archivo,
+        tipo_planificacion: "fecha",
+        hora: horaRapida,
+        fecha: currentDate.toISOString().split("T")[0],
+        habilitada: true,
+      };
 
-        try {
-          await fetchAPI(`${API_URL}/canciones`, {
-            method: "POST",
-            body: JSON.stringify(data),
-          });
-          cancionesCreadas++;
-        } catch (error) {
-          console.error("Error creando canción:", error);
-        }
+      try {
+        await fetchAPI(`${API_URL}/canciones`, {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+        cancionesCreadas++;
+        indiceCancion++;
+      } catch (error) {
+        console.error("Error creando canción:", error);
       }
     }
     currentDate.setDate(currentDate.getDate() + 1);
@@ -726,15 +763,17 @@ async function detectarConflictos() {
     alert("Error detectando conflictos: " + error.message);
   }
 }
-function minimizarPanel() {
+function toggleEstadoPanel() {
   const panel = document.getElementById("panelEstado");
-  if (estadoPanel === "abierto") {
-    panel.classList.add("minimizado");
-    estadoPanel = "minimizado";
-  } else {
-    panel.classList.remove("minimizado");
-    estadoPanel = "abierto";
-  }
+  panel.classList.toggle("mostrado");
+}
+function cerrarEstadoPanel() {
+  const panel = document.getElementById("panelEstado");
+  panel.classList.remove("mostrado");
+}
+function minimizarPanel() {
+  // Función deprecada - ahora se usa cerrarEstadoPanel
+  cerrarEstadoPanel();
 }
 function copiarDatosRemoto() {
   const ip = document.getElementById("estadoIP").textContent;
@@ -826,8 +865,6 @@ const observer = new MutationObserver(async (mutations) => {
             renderizarPlaylist();
           } else if (tabId === "tab-reproduccion") {
             renderizarReproduccion();
-          } else if (tabId === "tab-archivado") {
-            renderizarArchivadas();
           }
         }
       });

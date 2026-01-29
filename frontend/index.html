@@ -30,13 +30,6 @@
                     </svg>
                     Playlist
                 </button>
-                <button class="nav-option" data-tab="archivado" onclick="cambiarTab('archivado')">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M20 2H4c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zm-5.04-6.71l-2.75 3.54-2.16-2.66c-.2-.24-.58-.24-.77 0l-2.38 2.92c-.31.38-.04.96.5.96h5.54c.59 0 .89-.66.54-1.11l-2.02-2.65z" />
-                    </svg>
-                    Archivado
-                </button>
                 <button class="nav-option" data-tab="reproduccion" onclick="cambiarTab('reproduccion')">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8 5v14l11-7z" />
@@ -53,6 +46,23 @@
             </div>
 
             <div class="navbar-right">
+                <!-- REPRODUCTOR MINIMALISTA -->
+                <div class="player-widget">
+                    <div id="playerContent" class="player-content">
+                        <div class="player-info">
+                            <p id="playerStatus">Próxima canción programada: Ninguna</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTÓN DE ESTADO/RED -->
+                <button id="btnEstado" class="btn-estado" onclick="toggleEstadoPanel()" title="Ver estado de red">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z" />
+                    </svg>
+                </button>
+
                 <button id="btnApagar" class="btn-shutdown" onclick="apagarAplicacion()">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <path
@@ -75,11 +85,6 @@
                     <p>Cargando playlist...</p>
                 </div>
             </div>
-            <div id="tab-archivado" class="tab-pane">
-                <div id="archivadoContainer" class="archivado-container">
-                    <p>Cargando archivadas...</p>
-                </div>
-            </div>
             <div id="tab-reproduccion" class="tab-pane">
                 <div id="reproduccionContainer" class="reproduccion-container">
                     <p>Cargando canciones disponibles...</p>
@@ -95,21 +100,18 @@
             </div>
         </main>
 
-        <!-- PANEL FLOTANTE DE ESTADO -->
+        <!-- PANEL FLOTANTE DE ESTADO/RED -->
         <div id="panelEstado" class="panel-estado">
             <div class="panel-header">
-                <h3>Estado</h3>
-                <button class="btn-minimize" onclick="minimizarPanel()">
+                <h3>Estado de Red</h3>
+                <button class="btn-minimize" onclick="cerrarEstadoPanel()">
                     <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M5 9h14v2H5z" />
+                        <path
+                            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
                     </svg>
                 </button>
             </div>
             <div class="panel-content">
-                <div class="estado-item">
-                    <span class="estado-label">Reproduciendo:</span>
-                    <span id="estadoCancionActual" class="estado-value">Parado</span>
-                </div>
                 <div class="estado-item">
                     <span class="estado-label">IP Local:</span>
                     <span id="estadoIP" class="estado-value">Conectando...</span>
@@ -124,8 +126,6 @@
                 </div>
                 <button class="btn-copy-remote" onclick="copiarDatosRemoto()"
                     style="margin-top: 10px; width: 100%;">Copiar datos remoto</button>
-                <button id="btnStop" class="btn-stop" onclick="detenerCancion()"
-                    style="margin-top: 8px; width: 100%;">STOP</button>
             </div>
         </div>
     </div>
@@ -181,12 +181,13 @@
                 <button class="modal-close" onclick="cerrarModalProgramacion()">&times;</button>
             </div>
             <form id="formularioProgramacionRapida">
-                <div class="form-group"><label for="archivoProgramacion">Archivos MP3 (Selecciona múltiples):</label><select
-                        id="archivoProgramacion" required multiple onchange="actualizarResumenProgramacion()"
-                        style="min-height: 100px;">
+                <div class="form-group"><label for="archivoProgramacion">Archivos MP3 (Selecciona
+                        múltiples):</label><select id="archivoProgramacion" required multiple
+                        onchange="actualizarResumenProgramacion()" style="min-height: 100px;">
                         <option value="">-- Selecciona uno o más archivos --</option>
                     </select>
-                    <small style="display: block; margin-top: 5px; color: #666; font-size: 0.85em;">💡 Usa Ctrl+Click (Cmd+Click en Mac) para seleccionar múltiples</small>
+                    <small style="display: block; margin-top: 5px; color: #666; font-size: 0.85em;">💡 Usa Ctrl+Click
+                        (Cmd+Click en Mac) para seleccionar múltiples</small>
                 </div>
                 <div class="form-group"><label for="fechaInicio">Fecha de Inicio:</label><input type="date"
                         id="fechaInicio" required></div>
