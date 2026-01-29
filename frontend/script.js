@@ -266,7 +266,7 @@ function renderizarPlaylist() {
               <button onclick="eliminarCancion(${cancion.id})" class="btn-tabla btn-eliminar" title="Eliminar">🗑️</button>
             </td>
           </tr>
-        `
+        `,
           )
           .join("")}
       </tbody>
@@ -336,7 +336,7 @@ function renderizarArchivadas() {
               <button onclick="eliminarCancion(${cancion.id})" class="btn-tabla btn-eliminar" title="Eliminar">🗑️</button>
             </td>
           </tr>
-        `
+        `,
           )
           .join("")}
       </tbody>
@@ -436,34 +436,34 @@ function agregarEstilosTabla() {
 }
 
 function editarCelda(cell, campo, id) {
-  if (cell.querySelector('input')) return;
-  const span = cell.querySelector('span');
+  if (cell.querySelector("input")) return;
+  const span = cell.querySelector("span");
   const valor = span.textContent;
-  const input = document.createElement('input');
-  input.type = campo === 'fecha' ? 'date' : (campo === 'hora' ? 'time' : 'text');
-  input.value = valor === '-' ? '' : valor;
-  cell.innerHTML = '';
+  const input = document.createElement("input");
+  input.type = campo === "fecha" ? "date" : campo === "hora" ? "time" : "text";
+  input.value = valor === "-" ? "" : valor;
+  cell.innerHTML = "";
   cell.appendChild(input);
   input.focus();
   input.select();
-  
+
   async function guardarCambio() {
     const nuevoValor = input.value;
     try {
       await fetchAPI(`${API_URL}/canciones/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify({ [campo]: nuevoValor || null })
+        method: "PUT",
+        body: JSON.stringify({ [campo]: nuevoValor || null }),
       });
       await cargarCanciones();
     } catch (error) {
-      console.error('Error al guardar:', error);
+      console.error("Error al guardar:", error);
       cell.innerHTML = `<span>${valor}</span>`;
     }
   }
-  
-  input.addEventListener('blur', guardarCambio);
-  input.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') guardarCambio();
+
+  input.addEventListener("blur", guardarCambio);
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") guardarCambio();
   });
 }
 function abrirModalAgregarCancion() {
@@ -478,6 +478,18 @@ function abrirModalProgramacion() {
   document.getElementById("modalProgramacionRapida").classList.add("abierto");
   const hoy = new Date().toISOString().split("T")[0];
   document.getElementById("fechaInicio").value = hoy;
+  cargarArchivos();
+  // Cargar archivos en el selector de programación
+  const selectArchivo = document.getElementById("archivoProgramacion");
+  if (selectArchivo && archivosDisponibles && archivosDisponibles.length > 0) {
+    selectArchivo.innerHTML = '<option value="">-- Selecciona un archivo --</option>';
+    archivosDisponibles.forEach((archivo) => {
+      const option = document.createElement("option");
+      option.value = archivo.nombre;
+      option.textContent = `${archivo.nombre} (${formatarTamaño(archivo.tamaño)})`;
+      selectArchivo.appendChild(option);
+    });
+  }
 }
 function cerrarModalProgramacion() {
   document
@@ -591,9 +603,15 @@ function actualizarResumenProgramacion() {
   const fechaInicio = new Date(document.getElementById("fechaInicio").value);
   const fechaFin = new Date(document.getElementById("fechaFin").value);
   const incluirFinSemana = document.getElementById("incluirFinSemana").checked;
+  const archivo = document.getElementById("archivoProgramacion").value;
+  if (!archivo) {
+    document.getElementById("resumenProgramacion").innerHTML =
+      '<p style="color: #999; margin: 0;">Selecciona un archivo primero</p>';
+    return;
+  }
   if (!fechaInicio || !fechaFin || fechaInicio > fechaFin) {
-    document.getElementById("resumenProgramacion").textContent =
-      "Fechas inválidas";
+    document.getElementById("resumenProgramacion").innerHTML =
+      '<p style="color: #d32f2f; margin: 0;">Fechas inválidas</p>';
     return;
   }
   let count = 0;
@@ -605,15 +623,17 @@ function actualizarResumenProgramacion() {
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  document.getElementById("resumenProgramacion").textContent =
-    `Se programarán ${count} día(s) desde ${fechaInicio.toLocaleDateString("es-ES")} hasta ${fechaFin.toLocaleDateString("es-ES")}`;
+  const mensaje = count === 0 
+    ? 'No hay días seleccionados'
+    : `<span style="color: #4caf50; font-weight: bold;">✓ Se programarán ${count} canción(es)</span><br><span style="font-size: 0.85em; color: #666;">Del ${fechaInicio.toLocaleDateString("es-ES")} al ${fechaFin.toLocaleDateString("es-ES")}</span>`;
+  document.getElementById("resumenProgramacion").innerHTML = mensaje;
 }
 async function generarProgramacionRapida(e) {
   e.preventDefault();
-  const archivo = document.getElementById("archivo").value;
-  const nombre = document.getElementById("nombre").value;
-  if (!archivo || !nombre) {
-    alert("Por favor completa el formulario principal primero");
+  const archivo = document.getElementById("archivoProgramacion").value;
+  const nombreBase = document.getElementById("nombre").value || "Canción programada";
+  if (!archivo) {
+    alert("Por favor selecciona un archivo");
     return;
   }
   const fechaInicio = new Date(document.getElementById("fechaInicio").value);
@@ -626,7 +646,7 @@ async function generarProgramacionRapida(e) {
     const dayOfWeek = currentDate.getDay();
     if (incluirFinSemana || (dayOfWeek !== 0 && dayOfWeek !== 6)) {
       const data = {
-        nombre: `${nombre} - ${currentDate.toLocaleDateString("es-ES")}`,
+        nombre: `${nombreBase} - ${currentDate.toLocaleDateString("es-ES")}`,
         archivo,
         tipo_planificacion: "fecha",
         hora: horaRapida,

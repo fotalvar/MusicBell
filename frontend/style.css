@@ -3,6 +3,18 @@
   padding: 0;
   box-sizing: border-box;
 }
+input,
+textarea,
+select {
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(91, 109, 255, 0.1);
+}
 :root {
   --primary: #5b6dff;
   --primary-dark: #4a57cc;
@@ -405,17 +417,19 @@ body {
 .form-group select {
   width: 100%;
   padding: 12px;
-  border: 1px solid var(--gray-300);
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   font-size: 0.95em;
   font-family: inherit;
   transition: all 0.3s ease;
+  background: var(--white);
 }
 .form-group input:focus,
 .form-group select:focus {
   outline: 0;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(91, 109, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(91, 109, 255, 0.1);
+  background: #fafbff;
 }
 .dias-checkbox {
   display: grid;
