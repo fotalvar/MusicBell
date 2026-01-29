@@ -1,255 +1,235 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MusicBell - Control de Música Escolar</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
-    <div class="container">
-        <header>
-            <div class="header-title">
-                <svg class="header-icon" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+    <div class="app-container">
+        <!-- NAVBAR PRINCIPAL -->
+        <nav class="navbar">
+            <div class="navbar-left">
+                <svg class="navbar-logo" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
                 </svg>
-                <h1>MusicBell</h1>
-            </div>
-            <button id="btnApagar" class="btn-apagar" onclick="apagarAplicacion()" title="Apagar la aplicación completamente">
-                <svg viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-13c-2.76 0-5 2.24-5 5h2c0-1.66 1.34-3 3-3s3 1.34 3 3H17c0-2.76-2.24-5-5-5z"/>
-                </svg>
-                Apagar
-            </button>
-        </header>
-
-        <main>
-            <!-- ESTADO RÁPIDO (FUERA DE TABS) -->
-            <div class="estado-rapido">
-                <div class="estado-info">
-                    <svg class="estado-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
-                    </svg>
-                    <span id="estadoRapido">Estado: Sin reproducción</span>
-                </div>
-                <button id="btnStop" class="btn-stop" onclick="detenerCancion()">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5h8v14H8z"/>
-                    </svg>
-                    STOP
-                </button>
+                <h1 class="navbar-title">MusicBell</h1>
             </div>
 
-            <!-- Navegación de Tabs -->
-            <div class="tabs-nav">
-                <button class="tab-btn activo" onclick="cambiarTab('canciones')">
+            <div class="navbar-center">
+                <button class="nav-option" data-tab="canciones" onclick="cambiarTab('canciones')">
                     <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h12v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z"/>
+                        <path
+                            d="M15 6H3v2h12V6zm0 4H3v2h12v-2zM3 16h12v-2H3v2zM17 6v8.18c-.31-.11-.65-.18-1-.18-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3V8h3V6h-5z" />
                     </svg>
                     Playlist
                 </button>
-                <button class="tab-btn" onclick="cambiarTab('reproduccion')">
+                <button class="nav-option" data-tab="archivado" onclick="cambiarTab('archivado')">
                     <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                    </svg>
-                    Reproducción
-                </button>
-                <button class="tab-btn" onclick="cambiarTab('archivado')">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zm-5.04-6.71l-2.75 3.54-2.16-2.66c-.2-.24-.58-.24-.77 0l-2.38 2.92c-.31.38-.04.96.5.96h5.54c.59 0 .89-.66.54-1.11l-2.02-2.65z"/>
+                        <path
+                            d="M20 2H4c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H4V4h16v16zm-5.04-6.71l-2.75 3.54-2.16-2.66c-.2-.24-.58-.24-.77 0l-2.38 2.92c-.31.38-.04.96.5.96h5.54c.59 0 .89-.66.54-1.11l-2.02-2.65z" />
                     </svg>
                     Archivado
                 </button>
-                <button class="tab-btn" onclick="cambiarTab('conflictos')">
+                <button class="nav-option" data-tab="reproduccion" onclick="cambiarTab('reproduccion')">
                     <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        <path d="M8 5v14l11-7z" />
+                    </svg>
+                    Reproducción
+                </button>
+                <button class="nav-option" data-tab="conflictos" onclick="cambiarTab('conflictos')">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                     </svg>
                     Conflictos
                 </button>
             </div>
 
-            <!-- TAB 1: PLAYLIST -->
-            <div id="tab-canciones" class="tab-content activo">
-                <section class="playlist-section">
-                    <h2>Playlist</h2>                    
-                    <div class="playlist-botones">
-                        <button id="btnAbrirModalAgregarCancion" class="btn-agregar" style="flex: 1;">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                            </svg>
-                            Añadir Canción
-                        </button>
-                        <button id="btnAbrirModalProgramacion" class="btn-programacion-rapida" style="flex: 1; margin-left: 10px;">
-                            <svg viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.41 1.41C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
-                            </svg>
-                            Programación Rápida
-                        </button>
-                    </div>
-                    
-                    <div id="playlistContainer" class="playlist-container">
-                        <p>Cargando playlist...</p>
-                    </div>
-                </section>
+            <div class="navbar-right">
+                <button id="btnApagar" class="btn-shutdown" onclick="apagarAplicacion()">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-13c-2.76 0-5 2.24-5 5h2c0-1.66 1.34-3 3-3s3 1.34 3 3H17c0-2.76-2.24-5-5-5z" />
+                    </svg>
+                    Apagar
+                </button>
             </div>
+        </nav>
 
-            <!-- TAB 2: REPRODUCCIÓN -->
-            <div id="tab-reproduccion" class="tab-content">
-                <section class="reproduccion-section">
-                    <h2>Reproducción Rápida</h2>
-                    <p class="info-text">Selecciona cualquier canción de la carpeta Canciones para reproducirla al instante</p>
-                    <div id="reproduccionContainer" class="reproduccion-container">
-                        <p>Cargando canciones disponibles...</p>
-                    </div>
-                </section>
+        <!-- SUBBARRA DE ACCIONES -->
+        <div class="subbarra">
+            <div id="subbarraAcciones" class="subbarra-content"></div>
+        </div>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <div id="tab-canciones" class="tab-pane activo">
+                <div id="playlistContainer" class="playlist-container">
+                    <p>Cargando playlist...</p>
+                </div>
             </div>
-
-            <!-- TAB 3: ARCHIVADO -->
-            <div id="tab-archivado" class="tab-content">
-                <section class="archivado-section">
-                    <h2>Archivado</h2>
-                    <p class="info-text">Canciones que ya han sido reproducidas</p>
-                    <div id="archivadoContainer" class="archivado-container">
-                        <p>No hay canciones archivadas</p>
-                    </div>
-                </section>
+            <div id="tab-archivado" class="tab-pane">
+                <div id="archivadoContainer" class="archivado-container">
+                    <p>Cargando archivadas...</p>
+                </div>
             </div>
-
-            <!-- TAB 4: CONFLICTOS -->
-            <div id="tab-conflictos" class="tab-content">
-                <section class="conflictos">
-                    <h2>Conflictos de Horario</h2>
-                    <p class="info-text">Verifica si hay múltiples canciones programadas para sonar al mismo tiempo, considerando su duración.</p>
+            <div id="tab-reproduccion" class="tab-pane">
+                <div id="reproduccionContainer" class="reproduccion-container">
+                    <p>Cargando canciones disponibles...</p>
+                </div>
+            </div>
+            <div id="tab-conflictos" class="tab-pane">
+                <div class="conflictos-wrapper">
                     <button id="btnConflictos" class="btn-check">Verificar Conflictos</button>
                     <div id="conflictosContent" class="conflictos-content">
                         <p>Presiona el botón para verificar</p>
                     </div>
-                </section>
+                </div>
             </div>
         </main>
 
-        <!-- Modal de Añadir Canción -->
-        <div id="modalAgregarCancion" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                        </svg>
-                        Añadir Nueva Canción
-                    </h3>
-                    <button class="modal-close" onclick="cerrarModalAgregarCancion()">&times;</button>
+        <!-- PANEL FLOTANTE DE ESTADO -->
+        <div id="panelEstado" class="panel-estado">
+            <div class="panel-header">
+                <h3>Estado</h3>
+                <button class="btn-minimize" onclick="minimizarPanel()">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M5 9h14v2H5z" />
+                    </svg>
+                </button>
+            </div>
+            <div class="panel-content">
+                <div class="estado-item">
+                    <span class="estado-label">Reproduciendo:</span>
+                    <span id="estadoCancionActual" class="estado-value">Parado</span>
                 </div>
-                
-                <form id="formularioCancion">
-                    <div class="form-group">
-                        <label for="nombre">Nombre:</label>
-                        <input type="text" id="nombre" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="archivo">Archivo MP3:</label>
-                        <select id="archivo" required>
-                            <option value="">-- Selecciona un archivo --</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tipo">Tipo de Planificación:</label>
-                        <select id="tipo" required onchange="cambiarTipo()">
-                            <option value="hora">Hora diaria</option>
-                            <option value="fecha">Fecha específica</option>
-                            <option value="dia_semana">Días de la semana</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="hora">Hora:</label>
-                        <input type="time" id="hora" required>
-                    </div>
-
-                    <div class="form-group" id="grupoFecha" style="display:none;">
-                        <label for="fecha">Fecha:</label>
-                        <input type="date" id="fecha">
-                    </div>
-
-                    <div class="form-group" id="grupoDias" style="display:none;">
-                        <label>Días de la semana:</label>
-                        <div class="dias-checkbox">
-                            <label><input type="checkbox" name="dia" value="lunes"> Lunes</label>
-                            <label><input type="checkbox" name="dia" value="martes"> Martes</label>
-                            <label><input type="checkbox" name="dia" value="miércoles"> Miércoles</label>
-                            <label><input type="checkbox" name="dia" value="jueves"> Jueves</label>
-                            <label><input type="checkbox" name="dia" value="viernes"> Viernes</label>
-                            <label><input type="checkbox" name="dia" value="sábado"> Sábado</label>
-                            <label><input type="checkbox" name="dia" value="domingo"> Domingo</label>
-                        </div>
-                    </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <button type="submit" class="btn-guardar" style="flex: 1;">Agregar Canción</button>
-                        <button type="button" class="btn-cancelar" onclick="cerrarModalAgregarCancion()" style="flex: 1;">Cancelar</button>
-                    </div>
-                </form>
+                <div class="estado-item">
+                    <span class="estado-label">IP Local:</span>
+                    <span id="estadoIP" class="estado-value">Conectando...</span>
+                </div>
+                <div class="estado-item">
+                    <span class="estado-label">Puerto:</span>
+                    <span id="estadoPuerto" class="estado-value">-</span>
+                </div>
+                <div class="estado-item">
+                    <span class="estado-label">Acceso Remoto:</span>
+                    <span id="estadoRemoto" class="estado-value">-</span>
+                </div>
+                <button class="btn-copy-remote" onclick="copiarDatosRemoto()"
+                    style="margin-top: 10px; width: 100%;">Copiar datos remoto</button>
+                <button id="btnStop" class="btn-stop" onclick="detenerCancion()"
+                    style="margin-top: 8px; width: 100%;">STOP</button>
             </div>
         </div>
+    </div>
 
-        <!-- Modal de Programación Rápida -->
-        <div id="modalProgramacionRapida" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3>
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.41 1.41C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
-                        </svg>
-                        Programación Rápida
-                    </h3>
-                    <button class="modal-close" onclick="cerrarModalProgramacion()">&times;</button>
-                </div>
-                
-                <form id="formularioProgramacionRapida">
-                    <div class="form-group">
-                        <label for="fechaInicio">Fecha de Inicio:</label>
-                        <input type="date" id="fechaInicio" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="fechaFin">Fecha de Fin:</label>
-                        <input type="date" id="fechaFin" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="horaRapida">Hora de Reproducción:</label>
-                        <input type="time" id="horaRapida" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="incluirFinSemana"> Incluir fines de semana
-                        </label>
-                    </div>
-
-                    <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-                        <p style="margin: 0 0 10px 0; font-weight: bold;">Resumen:</p>
-                        <p id="resumenProgramacion" style="margin: 0; color: #666; font-size: 0.9em;">
-                            Selecciona fechas para ver el resumen
-                        </p>
-                    </div>
-
-                    <div style="display: flex; gap: 10px;">
-                        <button type="submit" class="btn-guardar" style="flex: 1;">Generar Programación</button>
-                        <button type="button" class="btn-cancelar" onclick="cerrarModalProgramacion()" style="flex: 1;">Cancelar</button>
-                    </div>
-                </form>
+    <!-- MODALES -->
+    <div id="modalAgregarCancion" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                    </svg>Añadir Nueva Canción</h3>
+                <button class="modal-close" onclick="cerrarModalAgregarCancion()">&times;</button>
             </div>
+            <form id="formularioCancion">
+                <div class="form-group"><label for="nombre">Nombre:</label><input type="text" id="nombre" required>
+                </div>
+                <div class="form-group"><label for="archivo">Archivo MP3:</label><select id="archivo" required>
+                        <option value="">-- Selecciona un archivo --</option>
+                    </select></div>
+                <div class="form-group"><label for="tipo">Tipo de Planificación:</label><select id="tipo" required
+                        onchange="cambiarTipo()">
+                        <option value="hora">Hora diaria</option>
+                        <option value="fecha">Fecha específica</option>
+                        <option value="dia_semana">Días de la semana</option>
+                    </select></div>
+                <div class="form-group"><label for="hora">Hora:</label><input type="time" id="hora" required></div>
+                <div class="form-group" id="grupoFecha" style="display:none;"><label for="fecha">Fecha:</label><input
+                        type="date" id="fecha"></div>
+                <div class="form-group" id="grupoDias" style="display:none;"><label>Días de la semana:</label>
+                    <div class="dias-checkbox"><label><input type="checkbox" name="dia" value="lunes">
+                            Lunes</label><label><input type="checkbox" name="dia" value="martes">
+                            Martes</label><label><input type="checkbox" name="dia" value="miércoles">
+                            Miércoles</label><label><input type="checkbox" name="dia" value="jueves">
+                            Jueves</label><label><input type="checkbox" name="dia" value="viernes">
+                            Viernes</label><label><input type="checkbox" name="dia" value="sábado">
+                            Sábado</label><label><input type="checkbox" name="dia" value="domingo"> Domingo</label>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px;"><button type="submit" class="btn-guardar"
+                        style="flex: 1;">Agregar Canción</button><button type="button" class="btn-cancelar"
+                        onclick="cerrarModalAgregarCancion()" style="flex: 1;">Cancelar</button></div>
+            </form>
         </div>
+    </div>
 
-        <footer>
-            <p>MusicBell © 2026 - Sistema de reproducción automática</p>
-        </footer>
+    <div id="modalProgramacionRapida" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><svg viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M13 3h-2v10h2V3zm4.83 2.17l-1.41 1.41C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z" />
+                    </svg>Programación Rápida</h3>
+                <button class="modal-close" onclick="cerrarModalProgramacion()">&times;</button>
+            </div>
+            <form id="formularioProgramacionRapida">
+                <div class="form-group"><label for="fechaInicio">Fecha de Inicio:</label><input type="date"
+                        id="fechaInicio" required></div>
+                <div class="form-group"><label for="fechaFin">Fecha de Fin:</label><input type="date" id="fechaFin"
+                        required></div>
+                <div class="form-group"><label for="horaRapida">Hora de Reproducción:</label><input type="time"
+                        id="horaRapida" required></div>
+                <div class="form-group"><label><input type="checkbox" id="incluirFinSemana"> Incluir fines de
+                        semana</label></div>
+                <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                    <p style="margin: 0 0 10px 0; font-weight: bold;">Resumen:</p>
+                    <p id="resumenProgramacion" style="margin: 0; color: #666; font-size: 0.9em;">Selecciona fechas para
+                        ver el resumen</p>
+                </div>
+                <div style="display: flex; gap: 10px;"><button type="submit" class="btn-guardar"
+                        style="flex: 1;">Generar Programación</button><button type="button" class="btn-cancelar"
+                        onclick="cerrarModalProgramacion()" style="flex: 1;">Cancelar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalCargaRemota" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                    </svg>Cargar Archivo de Música</h3>
+                <button class="modal-close" onclick="cerrarModalCargaRemota()">&times;</button>
+            </div>
+            <div class="upload-area" id="uploadArea" ondrop="handleDrop(event)" ondragover="handleDragOver(event)"
+                ondragleave="handleDragLeave(event)">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+                <p>Arrastra archivos aquí o haz clic para seleccionar</p>
+                <input type="file" id="fileInput" accept=".mp3" multiple style="display: none;"
+                    onchange="handleFileSelect(event)">
+            </div>
+            <div id="uploadProgress" style="display: none; margin-top: 20px;">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <p id="uploadStatus" style="text-align: center; margin-top: 10px; font-size: 0.9em;">Subiendo...</p>
+            </div>
+            <button class="btn-cancelar" onclick="cerrarModalCargaRemota()"
+                style="width: 100%; margin-top: 15px;">Cerrar</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
 </body>
+
 </html>
