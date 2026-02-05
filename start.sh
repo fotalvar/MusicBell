@@ -1,4 +1,4 @@
-`#!/bin/bash
+#!/bin/bash
 # Script de inicio para MusicBell en macOS/Linux
 
 echo "================================================"
@@ -51,8 +51,10 @@ echo ""
 echo "🚀 Iniciando servidor..."
 echo ""
 
-# Abrir el navegador automáticamente después de un pequeño delay
-(sleep 3 && echo "🌐 Abriendo navegador..." && open "http://localhost:5000") &
+# Abrir el navegador automáticamente después de un pequeño delay (solo en macOS)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    (sleep 3 && echo "🌐 Abriendo navegador..." && open "http://localhost:5000") &
+fi
 
 cd backend
 python app.py
