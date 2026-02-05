@@ -109,7 +109,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción usando playsound (funciona en Windows, macOS y Linux con MP3)"""
+        """Reproduce una canción con múltiples métodos de fallback"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -121,31 +121,81 @@ class MusicScheduler:
             system = platform.system()
             logger.info(f"Intentando reproducir: {song_path} en {system}")
             
-            from playsound import playsound
-            
-            # Crear un thread para reproducir la canción sin bloquear
-            def play_thread():
+            # INTENTO 1: Windows Media Player (Windows)
+            if system == 'Windows':
                 try:
-                    logger.info(f"Iniciando reproducción: {song_path}")
-                    playsound(song_path)
-                    logger.info(f"Reproducción finalizada: {song_path}")
-                except Exception as e:
-                    logger.error(f"Error en reproducción: {e}")
+                    logger.info("Intento 1: Usando playsound")
+                    from playsound import playsound
+                    
+                    def play_thread():
+                        try:
+                            logger.info(f"Iniciando reproducción con playsound: {song_path}")
+                            playsound(song_path)
+                            logger.info(f"Reproducción finalizada: {song_path}")
+                        except Exception as e:
+                            logger.error(f"Error en playsound: {e}")
+                            # Intento 2: wmplayer.exe
+                            self._play_with_wmplayer(song_path)
+                    
+                    player_thread = threading.Thread(target=play_thread, daemon=True)
+                    player_thread.start()
+                    self.current_player_process = player_thread
+                    
+                    logger.info(f"Reproduciendo (playsound): {song_path}")
+                    return True
+                    
+                except ImportError:
+                    logger.warning("playsound no está instalado, intentando wmplayer")
+                    return self._play_with_wmplayer(song_path)
             
-            # Iniciar el thread en background
-            player_thread = threading.Thread(target=play_thread, daemon=True)
-            player_thread.start()
-            self.current_player_process = player_thread
+            # INTENTO 2: macOS - afplay
+            elif system == 'Darwin':
+                self.current_player_process = subprocess.Popen(['afplay', song_path])
+                logger.info(f"Reproduciendo (afplay): {song_path}")
+                return True
             
-            logger.info(f"Reproduciendo (playsound): {song_path}")
-            return True
+            # INTENTO 3: Linux - paplay
+            elif system == 'Linux':
+                self.current_player_process = subprocess.Popen(['paplay', song_path])
+                logger.info(f"Reproduciendo (paplay): {song_path}")
+                return True
+            
+            else:
+                logger.error(f"Sistema no soportado: {system}")
+                return False
                 
-        except ImportError:
-            logger.error("playsound no está instalado. Instala con: pip install playsound==1.2.2")
-            return False
         except Exception as e:
             logger.error(f"Error reproduciendo canción: {e}")
             return False
+    
+    def _play_with_wmplayer(self, song_path):
+        """Fallback: Usar Windows Media Player directamente"""
+        try:
+            logger.info(f"Intento 2: Usando wmplayer.exe")
+            import subprocess
+            # Usar wmplayer.exe de Windows Media Player
+            wmplayer_paths = [
+                r"C:\Program Files\Windows Media Player\wmplayer.exe",
+                r"C:\Program Files (x86)\Windows Media Player\wmplayer.exe",
+            ]
+            
+            for wmplayer_path in wmplayer_paths:
+                if os.path.exists(wmplayer_path):
+                    logger.info(f"Encontrado: {wmplayer_path}")
+                    # Ejecutar wmplayer con el archivo
+                    # /play: reproducir
+                    # /fullscreen: pantalla completa (opcional)
+                    subprocess.Popen([wmplayer_path, song_path])
+                    logger.info(f"Reproduciendo con wmplayer: {song_path}")
+                    return True
+            
+            logger.warning("wmplayer.exe no encontrado")
+            return False
+            
+        except Exception as e:
+            logger.error(f"Error con wmplayer: {e}")
+            return False
+    
     
     def stop_current_song(self):
         """Detiene la canción que está sonando actualmente"""
