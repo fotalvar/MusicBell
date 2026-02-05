@@ -622,32 +622,18 @@ async function agregarCancion(e) {
 }
 async function reproducirCancion(nombreArchivo) {
   try {
-    // Crear URL para el archivo
-    const audioUrl = `${API_URL}/../canciones/${nombreArchivo}`;
-
-    // Obtener o crear elemento de audio
-    let audioPlayer = document.getElementById("audioPlayer");
-    if (!audioPlayer) {
-      audioPlayer = document.createElement("audio");
-      audioPlayer.id = "audioPlayer";
-      audioPlayer.controls = false;
-      document.body.appendChild(audioPlayer);
-    }
-
-    // Establecer fuente y reproducir
-    audioPlayer.src = audioUrl;
-    audioPlayer.oncanplaythrough = () => {
-      audioPlayer
-        .play()
-        .catch((err) => console.error("Error reproduciendo:", err));
-    };
-    audioPlayer.load();
-
-    // Notificar al backend
-    await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
+    // Enviar orden de reproducción al backend
+    // El backend reproducirá la canción localmente en el servidor Windows
+    const response = await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
       method: "POST",
     });
-    await cargarEstado();
+
+    console.log("Orden de reproducción enviada al backend:", response);
+
+    // Actualizar estado después de un pequeo retraso
+    setTimeout(() => {
+      cargarEstado();
+    }, 500);
   } catch (error) {
     alert("Error reproduciendo: " + error.message);
   }
@@ -655,18 +641,16 @@ async function reproducirCancion(nombreArchivo) {
 
 async function detenerCancion() {
   try {
-    // Detener el audio local completamente
-    const audioPlayer = document.getElementById("audioPlayer");
-    if (audioPlayer) {
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
-      audioPlayer.src = ""; // Limpiar la fuente
-      audioPlayer.oncanplaythrough = null; // Remover el event listener
-    }
+    // Enviar orden de parada al backend
+    // El backend detendrá la reproducción en el servidor Windows
+    const response = await fetchAPI(`${API_URL}/detener`, { method: "POST" });
 
-    // Notificar al backend
-    await fetchAPI(`${API_URL}/detener`, { method: "POST" });
-    await cargarEstado();
+    console.log("Orden de parada enviada al backend:", response);
+
+    // Actualizar estado después de un pequeño retraso
+    setTimeout(() => {
+      cargarEstado();
+    }, 500);
   } catch (error) {
     console.error("Error deteniendo:", error);
   }
