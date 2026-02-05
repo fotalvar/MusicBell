@@ -3,8 +3,24 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="Sistema automático de reproducción de música para escuelas">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MusicBell">
+    
     <title>MusicBell - Control de Música Escolar</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/icon-512.png">
+    <link rel="apple-touch-icon" href="/images/icon-192.png">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -225,6 +241,34 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <!-- Service Worker Registration para PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js').then(reg => {
+                    console.log('✅ Service Worker registrado:', reg);
+                }).catch(err => {
+                    console.log('❌ Error registrando Service Worker:', err);
+                });
+            });
+        }
+        
+        // Detectar cuando la app puede ser instalada
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('📲 App lista para instalar');
+            // Mostrar botón de instalación si quieres
+            // mostrarBotonInstalar();
+        });
+        
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ Aplicación instalada');
+            deferredPrompt = null;
+        });
+    </script>
 </body>
 
 </html>

@@ -1,0 +1,91 @@
+{
+  "name": "MusicBell",
+  "short_name": "MusicBell",
+  "description": "Sistema automático de reproducción de música para escuelas y espacios públicos",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/images/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/screenshot-540.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/images/screenshot-1920.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["education", "music", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Reproducir canción",
+      "short_name": "Reproducir",
+      "description": "Acceso rápido a la reproducción",
+      "url": "/?tab=reproduccion",
+      "icons": [
+        {
+          "src": "/images/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ver programación",
+      "short_name": "Programación",
+      "description": "Ver canciones programadas",
+      "url": "/?tab=canciones",
+      "icons": [
+        {
+          "src": "/images/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "files": [
+        {
+          "name": "media",
+          "accept": ["audio/mpeg", "audio/wav", "audio/flac"]
+        }
+      ]
+    }
+  }
+}

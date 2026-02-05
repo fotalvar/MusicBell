@@ -18,13 +18,13 @@ print(f"   Versión: {sys.version}")
 print(f"   Ejecutable: {sys.executable}")
 
 # 2. Verificar playsound
-print("\n2️⃣  PLAYSOUND")
+print("\n2️⃣  PYTHON-VLC")
 try:
-    import playsound
-    print(f"   ✅ Instalado: {playsound.__file__}")
+    import vlc
+    print(f"   ✅ Instalado")
 except ImportError as e:
     print(f"   ❌ NO INSTALADO: {e}")
-    print("   Instala con: python -m pip install playsound==1.2.2")
+    print("   Instala con: python -m pip install python-vlc==3.0.20123")
     sys.exit(1)
 
 # 3. Verificar carpeta de canciones
@@ -70,15 +70,35 @@ else:
     print(f"   ❌ No hay archivos MP3 para probar")
 
 # 5. Probar reproducción manual
-print("\n5️⃣  PRUEBA DE REPRODUCCIÓN")
+print("\n5️⃣  PRUEBA DE REPRODUCCIÓN CON VLC")
 if mp3_files:
     test_file = str(mp3_files[0].absolute())
     print(f"   Intentando reproducir: {test_file}")
     
     try:
         print("   ⏳ Reproduciendo... (espera 2-3 segundos)")
-        from playsound import playsound
-        playsound(test_file)
+        import vlc
+        
+        # Crear instancia VLC
+        instance = vlc.Instance('--no-xlib')
+        media = instance.media_list_new()
+        media_item = instance.media_new(test_file)
+        media.add_media(media_item)
+        
+        # Crear reproductor
+        player = instance.list_player_new()
+        player.set_media_list(media)
+        
+        # Reproducir
+        player.play()
+        
+        # Esperar un poco
+        import time
+        time.sleep(3)
+        
+        # Detener
+        player.stop()
+        
         print("   ✅ ¡REPRODUCCIÓN EXITOSA! El audio funcionó.")
     except Exception as e:
         print(f"   ❌ ERROR EN REPRODUCCIÓN: {e}")
@@ -110,4 +130,4 @@ print("\n" + "=" * 60)
 print("✅ DIAGNÓSTICO COMPLETADO")
 print("=" * 60)
 print("\n💡 Si el paso 5 funcionó, el problema está en la API/Frontend")
-print("   Si el paso 5 falló, el problema está en playsound o el archivo")
+print("   Si el paso 5 falló, el problema está en VLC o el archivo")

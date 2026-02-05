@@ -2,4 +2,4 @@ Flask==3.0.0
 Flask-CORS==4.0.0
 python-dotenv==1.0.0
 mutagen==1.46.0
-playsound==1.2.2
+python-vlc==3.0.20123

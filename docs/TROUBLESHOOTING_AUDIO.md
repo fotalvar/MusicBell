@@ -1,33 +1,32 @@
-# Solución: No hay sonido en Windows
+# Solución: Reproducción de Audio con VLC
 
-## 🔍 Diagnóstico Paso a Paso
-
-### Paso 1: Verificar que playsound está instalado
+## ✅ Instalación Rápida
 
 En PowerShell/CMD en Windows:
 
 ```bash
-python -m pip list | findstr playsound
-```
+# 1. Instalar python-vlc
+python -m pip install python-vlc==3.0.20123
 
-Si no aparece, **instálalo ahora**:
+# 2. Instalar todas las dependencias
+cd backend
+python -m pip install -r requirements.txt
 
-```bash
-python -m pip install playsound==1.2.2
-```
-
-### Paso 2: Ejecutar script de diagnóstico
-
-```bash
-cd C:\ruta\a\MusicBell\backend
+# 3. Ejecutar diagnóstico
 python diagnostico_audio.py
 ```
 
-Este script te dirá exactamente dónde está el problema.
-
 ---
 
-## ✅ Checklist de Solución
+## 🎵 ¿Por qué VLC?
+
+VLC es la solución definitiva:
+
+✅ **Sin interfaz gráfica** - Solo reproduce audio, sin abrir ventanas  
+✅ **Sin procesos visibles** - El sonido sale directamente por los altavoces  
+✅ **Soporta todos los formatos** - MP3, FLAC, WAV, OGG, etc.  
+✅ **Multiplataforma** - Windows, macOS, Linux  
+✅ **Robusto** - Usado por millones de usuarios
 
 ### ✔️ 1. Playsound instalado
 
@@ -155,8 +154,8 @@ Si ninguna solución funciona, reporta con:
 # 1. Versión de Python
 python --version
 
-# 2. Playsound instalado?
-python -m pip show playsound
+# 2. python-vlc instalado?
+python -m pip show python-vlc
 
 # 3. Últimos logs
 cat logs\musicbell.log
@@ -164,7 +163,7 @@ cat logs\musicbell.log
 # 4. Archivos en canciones/
 dir canciones\
 
-# 5. Test manual
+# 5. Test automático
 python diagnostico_audio.py
 ```
 
@@ -172,14 +171,31 @@ python diagnostico_audio.py
 
 ## 🎯 Resumen Rápido
 
-| Problema              | Solución                       |
-| --------------------- | ------------------------------ |
-| "playsound not found" | `pip install playsound==1.2.2` |
-| No suena nada         | Ejecuta `diagnostico_audio.py` |
-| Volumen = 0           | Sube volumen de Windows        |
-| Archivo no existe     | Verifica `canciones/`          |
-| Aún no funciona       | Reinicia backend y Windows     |
+| Problema               | Solución                                    |
+| ---------------------- | ------------------------------------------- |
+| "python-vlc not found" | `pip install python-vlc==3.0.20123`         |
+| "libvlc not found"     | Instala VLC Media Player desde videolan.org |
+| No suena nada          | Ejecuta `diagnostico_audio.py`              |
+| Volumen = 0            | Sube volumen de Windows                     |
+| Archivo no existe      | Verifica `canciones/`                       |
+| Aún no funciona        | Reinicia backend y Windows                  |
 
 ---
 
+## 📞 Debugging
+
+Si quieres ver qué está pasando en real-time:
+
+```bash
+# Terminal 1: Backend en modo verbose
+FLASK_DEBUG=True python backend/app.py
+
+# Terminal 2: Ver logs en tiempo real
+Get-Content logs\musicbell.log -Wait  # PowerShell
+tail -f logs/musicbell.log            # CMD
+```
+
+---
+
+**Motor de reproducción**: VLC (python-vlc 3.0.20123)  
 **Última actualización**: 5 de febrero de 2026

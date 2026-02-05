@@ -41,7 +41,8 @@ class MusicScheduler:
         self.songs_dir = str(project_root / songs_dir)
         self.config = None
         self.current_player = None
-        self.current_player_process = None  # Track del proceso actual
+        self.current_player_process = None  # Track del reproductor
+        self.vlc_instance = None  # Instancia de VLC
         self.running = True
         
         # Crear directorios si no existen
@@ -109,7 +110,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción con múltiples métodos de fallback"""
+        """Reproduce una canción usando VLC sin interfaz gráfica"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -118,106 +119,65 @@ class MusicScheduler:
         self.stop_current_song()
         
         try:
-            system = platform.system()
-            logger.info(f"Intentando reproducir: {song_path} en {system}")
+            logger.info(f"Intentando reproducir: {song_path}")
             
-            # INTENTO 1: Windows Media Player (Windows)
-            if system == 'Windows':
-                try:
-                    logger.info("Intento 1: Usando playsound")
-                    from playsound import playsound
-                    
-                    def play_thread():
-                        try:
-                            logger.info(f"Iniciando reproducción con playsound: {song_path}")
-                            playsound(song_path)
-                            logger.info(f"Reproducción finalizada: {song_path}")
-                        except Exception as e:
-                            logger.error(f"Error en playsound: {e}")
-                            # Intento 2: wmplayer.exe
-                            self._play_with_wmplayer(song_path)
-                    
-                    player_thread = threading.Thread(target=play_thread, daemon=True)
-                    player_thread.start()
-                    self.current_player_process = player_thread
-                    
-                    logger.info(f"Reproduciendo (playsound): {song_path}")
-                    return True
-                    
-                except ImportError:
-                    logger.warning("playsound no está instalado, intentando wmplayer")
-                    return self._play_with_wmplayer(song_path)
+            import vlc
             
-            # INTENTO 2: macOS - afplay
-            elif system == 'Darwin':
-                self.current_player_process = subprocess.Popen(['afplay', song_path])
-                logger.info(f"Reproduciendo (afplay): {song_path}")
-                return True
+            # Crear instancia de VLC
+            # vlc_instance: instancia de VLC sin interfaz
+            vlc_instance = vlc.Instance('--no-xlib')  # Sin interfaz gráfica
             
-            # INTENTO 3: Linux - paplay
-            elif system == 'Linux':
-                self.current_player_process = subprocess.Popen(['paplay', song_path])
-                logger.info(f"Reproduciendo (paplay): {song_path}")
-                return True
+            # Crear media
+            media = vlc_instance.media_list_new()
+            media_item = vlc_instance.media_new(song_path)
+            media.add_media(media_item)
             
-            else:
-                logger.error(f"Sistema no soportado: {system}")
-                return False
+            # Crear list player (reproductor de listas)
+            list_player = vlc_instance.list_player_new()
+            list_player.set_media_list(media)
+            
+            # Guardar la instancia para poder detenerla después
+            self.current_player_process = list_player
+            self.vlc_instance = vlc_instance
+            
+            # Reproducir
+            list_player.play()
+            
+            logger.info(f"Reproduciendo (VLC): {song_path}")
+            return True
                 
+        except ImportError:
+            logger.error("python-vlc no está instalado. Instala con: pip install python-vlc==3.0.20123")
+            return False
         except Exception as e:
             logger.error(f"Error reproduciendo canción: {e}")
-            return False
-    
-    def _play_with_wmplayer(self, song_path):
-        """Fallback: Usar Windows Media Player directamente"""
-        try:
-            logger.info(f"Intento 2: Usando wmplayer.exe")
-            import subprocess
-            # Usar wmplayer.exe de Windows Media Player
-            wmplayer_paths = [
-                r"C:\Program Files\Windows Media Player\wmplayer.exe",
-                r"C:\Program Files (x86)\Windows Media Player\wmplayer.exe",
-            ]
-            
-            for wmplayer_path in wmplayer_paths:
-                if os.path.exists(wmplayer_path):
-                    logger.info(f"Encontrado: {wmplayer_path}")
-                    # Ejecutar wmplayer con el archivo
-                    # /play: reproducir
-                    # /fullscreen: pantalla completa (opcional)
-                    subprocess.Popen([wmplayer_path, song_path])
-                    logger.info(f"Reproduciendo con wmplayer: {song_path}")
-                    return True
-            
-            logger.warning("wmplayer.exe no encontrado")
-            return False
-            
-        except Exception as e:
-            logger.error(f"Error con wmplayer: {e}")
+            import traceback
+            traceback.print_exc()
+            logger.error(traceback.format_exc())
             return False
     
     
     def stop_current_song(self):
         """Detiene la canción que está sonando actualmente"""
         try:
-            # playsound ejecuta en un thread, así que simplemente limpiamos la referencia
-            # El thread terminará cuando la canción termine o cuando el sistema se apague
+            # Si es un reproductor VLC
             if self.current_player_process:
-                # Si es un proceso (subprocess para fallback en macOS/Linux)
-                if isinstance(self.current_player_process, subprocess.Popen):
-                    if self.current_player_process.poll() is None:
-                        try:
-                            self.current_player_process.terminate()
-                            try:
-                                self.current_player_process.wait(timeout=2)
-                            except subprocess.TimeoutExpired:
-                                self.current_player_process.kill()
-                        except Exception as e:
-                            logger.warning(f"Error deteniendo proceso: {e}")
+                try:
+                    # VLC list_player
+                    self.current_player_process.stop()
+                    logger.info("Música detenida (VLC)")
+                except Exception as e:
+                    logger.warning(f"Error deteniendo VLC: {e}")
                 
-                # Si es un thread (con playsound, no hay forma de detenerlo de forma inmediata)
-                # El thread terminará cuando playsound termine
                 self.current_player_process = None
+            
+            # Liberar instancia de VLC
+            if hasattr(self, 'vlc_instance'):
+                try:
+                    self.vlc_instance.release()
+                except:
+                    pass
+                self.vlc_instance = None
             
             logger.info("Canción detenida")
             return True
