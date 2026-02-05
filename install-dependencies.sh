@@ -52,11 +52,12 @@ print_info "Paso 1/5: Actualizando lista de paquetes del sistema"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-if sudo apt-get update >/dev/null 2>&1; then
+print_info "Ejecutando: sudo apt-get update"
+if sudo apt-get update 2>&1 | tail -5; then
     print_success "Lista de paquetes actualizada"
 else
-    print_error "Error al actualizar la lista de paquetes"
-    exit 1
+    print_warning "Advertencia: apt-get update mostró problemas"
+    print_info "Intentando continuar de todas formas..."
 fi
 
 echo ""
@@ -232,3 +233,48 @@ echo ""
 
 print_success "¡Todo listo para usar MusicBell! 🎵"
 echo ""
+
+# Función adicional para troubleshooting
+troubleshoot_apt() {
+    echo ""
+    echo "╔════════════════════════════════════════════╗"
+    echo "║     Solución de Problemas con apt-get      ║"
+    echo "╚════════════════════════════════════════════╝"
+    echo ""
+    print_info "Si tienes problemas con apt-get update, intenta:"
+    echo ""
+    echo "   1. Verificar conexión a internet:"
+    echo "      ping google.com"
+    echo ""
+    echo "   2. Limpiar cache de apt:"
+    echo "      sudo apt-get clean"
+    echo "      sudo apt-get autoclean"
+    echo ""
+    echo "   3. Arreglar repositorios dañados:"
+    echo "      sudo apt-get update --fix-missing"
+    echo ""
+    echo "   4. Ejecutar completo:"
+    echo "      sudo apt-get update"
+    echo "      sudo apt-get upgrade"
+    echo ""
+    echo "   5. Luego ejecuta el instalador de nuevo:"
+    echo "      bash install-dependencies.sh"
+    echo ""
+}
+
+# Si se pasa como parámetro '--help' mostrar ayuda
+if [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+    echo "MusicBell - Script Instalador"
+    echo "Uso: bash install-dependencies.sh [opciones]"
+    echo ""
+    echo "Opciones:"
+    echo "  --help, -h        Mostrar esta ayuda"
+    echo "  --troubleshoot    Mostrar solución de problemas"
+    echo ""
+fi
+
+# Si se pasa como parámetro '--troubleshoot' mostrar troubleshooting
+if [[ "$1" == "--troubleshoot" ]]; then
+    troubleshoot_apt
+fi
+

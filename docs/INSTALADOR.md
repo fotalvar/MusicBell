@@ -58,11 +58,62 @@ pip3 install -r backend/requirements.txt
 bash install-dependencies.sh
 ```
 
+## Error: "Error al actualizar la lista de paquetes"
+
+Este es el error más común. **No significa que no se pueda continuar**. Intenta esto:
+
+### Solución 1: Verificar conexión a internet
+
+```bash
+ping google.com
+```
+
+Si no hay respuesta, no tienes conexión a internet.
+
+### Solución 2: Limpiar cache de apt
+
+```bash
+sudo apt-get clean
+sudo apt-get autoclean
+bash install-dependencies.sh
+```
+
+### Solución 3: Reparar repositorios dañados
+
+```bash
+sudo apt-get update --fix-missing
+bash install-dependencies.sh
+```
+
+### Solución 4: Actualización completa del sistema
+
+```bash
+sudo apt-get update
+sudo apt-get upgrade
+bash install-dependencies.sh
+```
+
+### Solución 5: Ver detalles del error
+
+```bash
+bash -x install-dependencies.sh
+```
+
+Esto mostrará exactamente qué está fallando.
+
+### Solución 6: Ayuda del script
+
+```bash
+bash install-dependencies.sh --help
+bash install-dependencies.sh --troubleshoot
+```
+
 ## Requisitos previos
 
 - **Linux Mint** (u otro Linux basado en Debian)
-- **Conexión a internet**
+- **Conexión a internet** (obligatorio para `apt-get`)
 - **Permisos de sudo** (para instalar paquetes del sistema)
+- **Al menos 500MB de espacio libre** en disco
 
 ## Pasos después de instalar
 
