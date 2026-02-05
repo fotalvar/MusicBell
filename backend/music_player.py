@@ -161,10 +161,11 @@ class MusicScheduler:
             if system == 'Darwin':  # macOS
                 self.current_player_process = subprocess.Popen(['afplay', song_path])
             elif system == 'Windows':
-                # En Windows, usar 'start' para abrir con la aplicación por defecto
-                # Necesita comillas alrededor de la ruta
+                # En Windows, usar PowerShell para reproducir (más confiable)
+                # Convierte la ruta a formato Windows si es necesario
+                win_path = song_path.replace('/', '\\')
                 self.current_player_process = subprocess.Popen(
-                    ['cmd', '/c', f'start "" "{song_path}"'],
+                    ['powershell', '-Command', f'(New-Object Media.SoundPlayer).PlaySync("{win_path}")'],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL
                 )
