@@ -866,24 +866,102 @@ async function uploadarArchivos(files) {
   cerrarModalCargaRemota();
 }
 async function apagarAplicacion() {
-  try {
-    // Detener cualquier reproducción local
-    const audioPlayer = document.getElementById("audioPlayer");
-    if (audioPlayer) {
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
-      audioPlayer.src = "";
-      audioPlayer.oncanplaythrough = null;
-    }
+  // Mostrar modal de confirmación
+  const modal = document.createElement("div");
+  modal.id = "modalApagarConfirmacion";
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  `;
 
-    // Notificar al backend y luego cerrar
-    await fetchAPI(`${API_URL}/apagar`, { method: "POST" }).catch(() => {});
+  const contenido = document.createElement("div");
+  contenido.style.cssText = `
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+  `;
 
-    // Cerrar la ventana del navegador
-    window.close();
-  } catch (error) {
-    console.error("Error apagando:", error);
-    window.close();
+  contenido.innerHTML = `
+    <h2 style="margin: 0 0 20px 0; color: var(--gray-800);">¿Quieres cerrar la aplicación?</h2>
+    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+      <button id="btnCancelar" style="padding: 10px 20px; border: 1px solid var(--gray-300); background: var(--white); border-radius: 6px; cursor: pointer; font-size: 1em;">Cancelar</button>
+      <button id="btnConfirmar" style="padding: 10px 20px; background: linear-gradient(135deg, #5b6dff 0%, #7c3aed 100%); color: var(--white); border: none; border-radius: 6px; cursor: pointer; font-size: 1em;">Sí, apagar</button>
+    </div>
+  `;
+
+  modal.appendChild(contenido);
+  document.body.appendChild(modal);
+
+  // Evento para cancelar
+  document.getElementById("btnCancelar").addEventListener("click", () => {
+    modal.remove();
+  });
+
+  // Evento para confirmar
+  document
+    .getElementById("btnConfirmar")
+    .addEventListener("click", async () => {
+      modal.remove();
+
+      try {
+        // Detener cualquier reproducción local
+        const audioPlayer = document.getElementById("audioPlayer");
+        if (audioPlayer) {
+          audioPlayer.pause();
+          audioPlayer.currentTime = 0;
+          audioPlayer.src = "";
+          audioPlayer.oncanplaythrough = null;
+        }
+
+        // Notificar al backend
+        await fetchAPI(`${API_URL}/apagar`, { method: "POST" }).catch(() => {});
+
+        // Mostrar pantalla de apagado
+        mostrarPantallaApagado();
+      } catch (error) {
+        console.error("Error apagando:", error);
+        mostrarPantallaApagado();
+      }
+    });
+}
+
+function mostrarPantallaApagado() {
+  // Limpiar el DOM y mostrar pantalla de apagado
+  const container = document.querySelector(".app-container");
+  if (container) {
+    container.innerHTML = `
+      <div style="
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(135deg, #5b6dff 0%, #7c3aed 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: var(--white);
+        text-align: center;
+      ">
+        <svg style="width: 80px; height: 80px; margin-bottom: 20px;" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-13c-2.76 0-5 2.24-5 5h2c0-1.66 1.34-3 3-3s3 1.34 3 3H17c0-2.76-2.24-5-5-5z" />
+        </svg>
+        <h1 style="margin: 0 0 10px 0; font-size: 2.5em;">MusicBell</h1>
+        <p style="margin: 0 0 30px 0; font-size: 1.1em; opacity: 0.9;">Aplicación cerrada</p>
+        <p style="margin: 0; font-size: 1em; max-width: 400px; line-height: 1.6;">
+          Vuelve a ejecutar la aplicación y luego actualiza la página
+        </p>
+      </div>
+    `;
   }
 }
 document.addEventListener("visibilitychange", async () => {
