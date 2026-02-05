@@ -188,25 +188,25 @@ class MusicScheduler:
     
     
     def stop_current_song(self):
-        """Detiene la canción que está sonando actualmente"""
+        """Detiene la cancion que esta sonando actualmente"""
         try:
-            logger.info("Deteniendo reproducción...")
+            logger.info("Deteniendo reproduccion...")
             
             if self.current_player:
                 try:
                     self.current_player.mixer.music.stop()
-                    logger.info("✅ Música detenida")
+                    logger.info("[OK] Musica detenida")
                 except Exception as e:
-                    logger.warning(f"Error deteniendo música: {e}")
+                    logger.warning(f"Error deteniendo musica: {e}")
             
             self.current_player_process = None
             self.current_player = None
             
-            logger.info("✅ Reproducción detenida")
+            logger.info("[OK] Reproduccion detenida")
             return True
             
         except Exception as e:
-            logger.error(f"Error deteniendo canción: {e}")
+            logger.error(f"Error deteniendo cancion: {e}")
             self.current_player_process = None
             self.current_player = None
             return False
