@@ -9,7 +9,7 @@
       "archivado": false,
       "duracion": "02:53",
       "hora": "16:48",
-      "fecha": "2026-01-29"
+      "fecha": null
     },
     {
       "id": 5,
@@ -68,8 +68,8 @@
     }
   ],
   "estado_reproduccion": {
-    "reproduciendo": true,
-    "cancion_actual": "Canción programada - 3/2/2026",
-    "fecha_ultima_actualizacion": "2026-01-29T16:48:06.207006"
+    "reproduciendo": false,
+    "cancion_actual": null,
+    "fecha_ultima_actualizacion": "2026-01-29T23:35:41.445099"
   }
 }

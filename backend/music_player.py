@@ -16,6 +16,13 @@ import signal
 import subprocess
 from utils import parsear_hora_a_segundos
 
+# Inicializar pygame mixer para reproducción de audio
+try:
+    import pygame
+    pygame.mixer.init()
+except Exception as e:
+    logging.warning(f"No se pudo inicializar pygame: {e}")
+
 # Configurar logging
 # Obtener la ruta del proyecto (padre del backend)
 project_root = Path(__file__).parent.parent
@@ -109,7 +116,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción usando el reproductor del sistema"""
+        """Reproduce una canción usando pygame (compatible con Windows, Mac y Linux)"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -120,46 +127,84 @@ class MusicScheduler:
         try:
             system = platform.system()
             
-            if system == 'Darwin':  # macOS
-                self.current_player_process = subprocess.Popen(['afplay', song_path])
-            elif system == 'Windows':
-                self.current_player_process = subprocess.Popen(['powershell', '-Command', f'(New-Object Media.SoundPlayer "{song_path}").PlaySync()'])
-            elif system == 'Linux':
-                self.current_player_process = subprocess.Popen(['paplay', song_path])
-            
-            logger.info(f"Reproduciendo: {song_path}")
-            return True
+            # Usar pygame para reproducción en todos los sistemas (más confiable)
+            try:
+                import pygame
+                if not pygame.mixer.get_init():
+                    pygame.mixer.init()
+                
+                pygame.mixer.music.load(song_path)
+                pygame.mixer.music.play()
+                
+                # Crear un thread para monitorear la reproducción
+                def monitor_playback():
+                    while pygame.mixer.music.get_busy():
+                        time.sleep(0.1)
+                    self.current_player_process = None
+                
+                self.current_player_process = threading.Thread(target=monitor_playback, daemon=True)
+                self.current_player_process.start()
+                
+                logger.info(f"Reproduciendo: {song_path}")
+                return True
+            except ImportError:
+                # Fallback si pygame no está disponible
+                logger.warning("pygame no disponible, usando reproductor del sistema")
+                
+                if system == 'Darwin':  # macOS
+                    self.current_player_process = subprocess.Popen(['afplay', song_path])
+                elif system == 'Windows':
+                    # Usar wmplayer como fallback en Windows (más confiable que Media.SoundPlayer)
+                    self.current_player_process = subprocess.Popen(['wmplayer', song_path])
+                elif system == 'Linux':
+                    self.current_player_process = subprocess.Popen(['paplay', song_path])
+                
+                logger.info(f"Reproduciendo: {song_path}")
+                return True
+                
         except Exception as e:
             logger.error(f"Error reproduciendo canción: {e}")
             return False
     
     def stop_current_song(self):
         """Detiene la canción que está sonando actualmente"""
-        if self.current_player_process and self.current_player_process.poll() is None:
+        try:
+            # Primero intentar con pygame si está disponible
             try:
-                # Intentar terminar el proceso de manera segura
-                if platform.system() == 'Windows':
-                    self.current_player_process.terminate()
-                else:
-                    os.kill(self.current_player_process.pid, signal.SIGTERM)
-                    
-                # Esperar a que se termine
-                try:
-                    self.current_player_process.wait(timeout=2)
-                except subprocess.TimeoutExpired:
-                    # Si no se termina, matar forzadamente
-                    if platform.system() == 'Windows':
-                        self.current_player_process.kill()
-                    else:
-                        os.kill(self.current_player_process.pid, signal.SIGKILL)
+                import pygame
+                if pygame.mixer.get_init():
+                    pygame.mixer.music.stop()
+            except:
+                pass
+            
+            # Luego intentar detener proceso si existe
+            if self.current_player_process:
+                if isinstance(self.current_player_process, subprocess.Popen):
+                    if self.current_player_process.poll() is None:
+                        try:
+                            if platform.system() == 'Windows':
+                                self.current_player_process.terminate()
+                            else:
+                                os.kill(self.current_player_process.pid, signal.SIGTERM)
+                            
+                            try:
+                                self.current_player_process.wait(timeout=2)
+                            except subprocess.TimeoutExpired:
+                                if platform.system() == 'Windows':
+                                    self.current_player_process.kill()
+                                else:
+                                    os.kill(self.current_player_process.pid, signal.SIGKILL)
+                        except Exception as e:
+                            logger.warning(f"Error deteniendo proceso: {e}")
                 
-                logger.info("Canción detenida")
                 self.current_player_process = None
-                return True
-            except Exception as e:
-                logger.error(f"Error deteniendo canción: {e}")
-                self.current_player_process = None
-        return False
+            
+            logger.info("Canción detenida")
+            return True
+        except Exception as e:
+            logger.error(f"Error deteniendo canción: {e}")
+            self.current_player_process = None
+            return False
     
     def check_conflicts(self, songs):
         """
