@@ -16,12 +16,13 @@ import signal
 import subprocess
 from utils import parsear_hora_a_segundos
 
-# Inicializar pygame mixer para reproducción de audio
+# Intentar importar pygame, pero no es obligatorio al iniciar
+pygame_available = False
 try:
     import pygame
-    pygame.mixer.init()
-except Exception as e:
-    logging.warning(f"No se pudo inicializar pygame: {e}")
+    pygame_available = True
+except ImportError:
+    logging.info("pygame no está instalado, se usarán reproductores del sistema")
 
 # Configurar logging
 # Obtener la ruta del proyecto (padre del backend)
@@ -127,40 +128,46 @@ class MusicScheduler:
         try:
             system = platform.system()
             
-            # Usar pygame para reproducción en todos los sistemas (más confiable)
-            try:
-                import pygame
-                if not pygame.mixer.get_init():
-                    pygame.mixer.init()
-                
-                pygame.mixer.music.load(song_path)
-                pygame.mixer.music.play()
-                
-                # Crear un thread para monitorear la reproducción
-                def monitor_playback():
-                    while pygame.mixer.music.get_busy():
-                        time.sleep(0.1)
-                    self.current_player_process = None
-                
-                self.current_player_process = threading.Thread(target=monitor_playback, daemon=True)
-                self.current_player_process.start()
-                
-                logger.info(f"Reproduciendo: {song_path}")
-                return True
-            except ImportError:
-                # Fallback si pygame no está disponible
-                logger.warning("pygame no disponible, usando reproductor del sistema")
-                
-                if system == 'Darwin':  # macOS
-                    self.current_player_process = subprocess.Popen(['afplay', song_path])
-                elif system == 'Windows':
-                    # Usar wmplayer como fallback en Windows (más confiable que Media.SoundPlayer)
-                    self.current_player_process = subprocess.Popen(['wmplayer', song_path])
-                elif system == 'Linux':
-                    self.current_player_process = subprocess.Popen(['paplay', song_path])
-                
-                logger.info(f"Reproduciendo: {song_path}")
-                return True
+            # Usar pygame si está disponible
+            if pygame_available:
+                try:
+                    import pygame
+                    # Inicializar pygame solo si no está inicializado
+                    if not pygame.mixer.get_init():
+                        pygame.mixer.init()
+                    
+                    pygame.mixer.music.load(song_path)
+                    pygame.mixer.music.play()
+                    
+                    # Crear un thread para monitorear la reproducción
+                    def monitor_playback():
+                        try:
+                            while pygame.mixer.music.get_busy():
+                                time.sleep(0.1)
+                        except:
+                            pass
+                        finally:
+                            self.current_player_process = None
+                    
+                    self.current_player_process = threading.Thread(target=monitor_playback, daemon=True)
+                    self.current_player_process.start()
+                    
+                    logger.info(f"Reproduciendo (pygame): {song_path}")
+                    return True
+                except Exception as e:
+                    logger.warning(f"Error con pygame: {e}, usando reproductor del sistema")
+            
+            # Fallback si pygame no está disponible o falló
+            if system == 'Darwin':  # macOS
+                self.current_player_process = subprocess.Popen(['afplay', song_path])
+            elif system == 'Windows':
+                # Usar wmplayer como fallback en Windows (más confiable que Media.SoundPlayer)
+                self.current_player_process = subprocess.Popen(['wmplayer', song_path])
+            elif system == 'Linux':
+                self.current_player_process = subprocess.Popen(['paplay', song_path])
+            
+            logger.info(f"Reproduciendo (sistema): {song_path}")
+            return True
                 
         except Exception as e:
             logger.error(f"Error reproduciendo canción: {e}")
