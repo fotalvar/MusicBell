@@ -114,7 +114,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción usando pygame con manejo robusto de errores"""
+        """Reproduce una cancion usando pydub con manejo robusto de errores"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -123,7 +123,7 @@ class MusicScheduler:
         self.stop_current_song()
         
         try:
-            logger.info(f"=== INICIANDO REPRODUCCIÓN ===")
+            logger.info(f"=== INICIANDO REPRODUCCION ===")
             logger.info(f"Archivo: {song_path}")
             logger.info(f"Tamaño: {os.path.getsize(song_path)} bytes")
             logger.info(f"Existe: {os.path.exists(song_path)}")
@@ -131,46 +131,52 @@ class MusicScheduler:
             
             # Verificar que el archivo es válido
             if os.path.getsize(song_path) == 0:
-                logger.error("El archivo está vacío")
+                logger.error("El archivo esta vacio")
                 return False
             
             if os.path.getsize(song_path) < 5000:  # Menos de 5KB
-                logger.error("El archivo es muy pequeño, probablemente corrupto")
+                logger.error("El archivo es muy pequeno, probablemente corrupto")
                 return False
             
-            # Importar pygame
+            # Importar pydub y simpleaudio
             try:
-                import pygame
-            except ImportError:
-                logger.error("[ERROR] pygame NO ESTA INSTALADO")
-                logger.error("Instala con: python -m pip install pygame")
+                from pydub import AudioSegment
+                import simpleaudio
+            except ImportError as e:
+                logger.error(f"[ERROR] Modulos de audio NO INSTALADOS: {e}")
+                logger.error("Instala con: python -m pip install pydub simpleaudio")
                 return False
             
-            logger.info("[OK] pygame importado correctamente")
+            logger.info("[OK] Modulos de audio importados correctamente")
             
-            # Inicializar mixer de pygame
-            try:
-                logger.info("Inicializando mixer...")
-                pygame.mixer.init()
-                logger.info("[OK] Mixer inicializado")
-            except Exception as e:
-                logger.error(f"[ERROR] Error inicializando mixer: {e}")
-                return False
-            
-            # Cargar y reproducir música
+            # Cargar archivo de audio
             try:
                 logger.info(f"Cargando musica: {song_path}")
-                pygame.mixer.music.load(song_path)
-                logger.info("[OK] Musica cargada")
-                
+                # Detectar formato automáticamente
+                audio = AudioSegment.from_file(song_path)
+                logger.info(f"[OK] Musica cargada ({len(audio)}ms, {audio.channels} canales, {audio.frame_rate}Hz)")
+            except Exception as e:
+                logger.error(f"[ERROR] Error cargando archivo: {e}")
+                return False
+            
+            # Reproducir música
+            try:
                 logger.info("Iniciando reproduccion...")
-                pygame.mixer.music.play()
-                logger.info("[OK] Reproduccion iniciada")
+                
+                # Convertir a WAV en memoria para reproducción
+                audio_data = audio.export(format="wav")
+                
+                # Reproducir con simpleaudio
+                self.current_player_process = simpleaudio.play_buffer(
+                    audio_data,
+                    num_channels=audio.channels,
+                    bytes_per_sample=audio.sample_width,
+                    sample_rate=audio.frame_rate
+                )
                 
                 # Guardar info de reproducción
-                self.current_player = pygame
-                self.current_player_process = True
-                
+                self.current_player = self.current_player_process
+                logger.info("[OK] Reproduccion iniciada")
                 logger.info(f"[OK] REPRODUCCION EXITOSA: {song_path}")
                 return True
                 
@@ -192,9 +198,9 @@ class MusicScheduler:
         try:
             logger.info("Deteniendo reproduccion...")
             
-            if self.current_player:
+            if self.current_player_process:
                 try:
-                    self.current_player.mixer.music.stop()
+                    self.current_player_process.stop()
                     logger.info("[OK] Musica detenida")
                 except Exception as e:
                     logger.warning(f"Error deteniendo musica: {e}")
