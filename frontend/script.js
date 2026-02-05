@@ -622,12 +622,25 @@ async function agregarCancion(e) {
 }
 async function reproducirCancion(nombreArchivo) {
   try {
-    // Reproducir el audio directamente en el navegador
-    const audioPlayer =
-      document.getElementById("audioPlayer") || crearAudioPlayer();
-    audioPlayer.src = `/canciones/${nombreArchivo}`;
-    audioPlayer.play();
-
+    // Crear URL para el archivo
+    const audioUrl = `${API_URL}/../canciones/${nombreArchivo}`;
+    
+    // Obtener o crear elemento de audio
+    let audioPlayer = document.getElementById("audioPlayer");
+    if (!audioPlayer) {
+      audioPlayer = document.createElement("audio");
+      audioPlayer.id = "audioPlayer";
+      audioPlayer.controls = false;
+      document.body.appendChild(audioPlayer);
+    }
+    
+    // Establecer fuente y reproducir
+    audioPlayer.src = audioUrl;
+    audioPlayer.oncanplaythrough = () => {
+      audioPlayer.play().catch(err => console.error("Error reproduciendo:", err));
+    };
+    audioPlayer.load();
+    
     // Notificar al backend
     await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
       method: "POST",
@@ -638,16 +651,6 @@ async function reproducirCancion(nombreArchivo) {
     alert("Error reproduciendo: " + error.message);
   }
 }
-
-function crearAudioPlayer() {
-  let audio = document.getElementById("audioPlayer");
-  if (!audio) {
-    audio = document.createElement("audio");
-    audio.id = "audioPlayer";
-    audio.hidden = true;
-    document.body.appendChild(audio);
-  }
-  return audio;
 }
 async function detenerCancion() {
   try {

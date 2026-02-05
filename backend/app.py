@@ -362,6 +362,14 @@ def apagar_aplicacion():
         logger.error(f"Error apagando aplicación: {e}")
         return jsonify({'error': str(e)}), 500
 
+@app.route('/canciones/<nombre_archivo>')
+def descargar_cancion(nombre_archivo):
+    try:
+        return send_from_directory(str(project_root / 'canciones'), nombre_archivo)
+    except Exception as e:
+        logger.error(f"Error descargando canción: {e}")
+        return jsonify({'error': str(e)}), 404
+
 @app.route('/')
 def index():
     return send_from_directory('../frontend', 'index.html')
