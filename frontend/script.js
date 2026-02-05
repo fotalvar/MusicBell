@@ -623,10 +623,11 @@ async function agregarCancion(e) {
 async function reproducirCancion(nombreArchivo) {
   try {
     // Reproducir el audio directamente en el navegador
-    const audioPlayer = document.getElementById('audioPlayer') || crear AudioPlayer();
+    const audioPlayer =
+      document.getElementById("audioPlayer") || crearAudioPlayer();
     audioPlayer.src = `/canciones/${nombreArchivo}`;
     audioPlayer.play();
-    
+
     // Notificar al backend
     await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
       method: "POST",
@@ -639,10 +640,10 @@ async function reproducirCancion(nombreArchivo) {
 }
 
 function crearAudioPlayer() {
-  let audio = document.getElementById('audioPlayer');
+  let audio = document.getElementById("audioPlayer");
   if (!audio) {
-    audio = document.createElement('audio');
-    audio.id = 'audioPlayer';
+    audio = document.createElement("audio");
+    audio.id = "audioPlayer";
     audio.hidden = true;
     document.body.appendChild(audio);
   }
