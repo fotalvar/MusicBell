@@ -405,7 +405,6 @@ function renderizarReproduccion() {
     `,
     )
     .join("");
-  agregarEstilosCancionCard();
 }
 function renderizarArchivadas() {
   // Función eliminada - no se usa archivado

@@ -109,7 +109,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción usando el método más apropiado para cada OS"""
+        """Reproduce una canción usando pygame (funciona en todos los OS con MP3)"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -121,45 +121,68 @@ class MusicScheduler:
             system = platform.system()
             logger.info(f"Intentando reproducir: {song_path} en {system}")
             
-            # Windows: usar winsound (nativo de Python)
-            if system == 'Windows':
+            # Inicializar pygame mixer para reproducción de audio
+            import pygame
+            
+            # Inicializar pygame (solo si no está ya inicializado)
+            if not pygame.mixer.get_init():
+                pygame.mixer.init()
+                logger.info("Pygame mixer inicializado")
+            
+            # Cargar y reproducir la canción
+            pygame.mixer.music.load(song_path)
+            pygame.mixer.music.play()
+            
+            # Obtener duración de la canción
+            sound = pygame.mixer.Sound(song_path)
+            duration = sound.get_length()
+            
+            # Crear un thread para monitorear la reproducción
+            def play_thread():
                 try:
-                    import winsound
-                    
-                    # Reproducir de forma asincrónica para no bloquear
-                    # SND_FILENAME: es un archivo
-                    # SND_ASYNC: reproducir de forma asincrónica (no bloquea)
-                    winsound.PlaySound(song_path, winsound.SND_FILENAME | winsound.SND_ASYNC)
-                    
-                    logger.info(f"Reproduciendo (winsound): {song_path}")
-                    return True
+                    # Esperar mientras se reproduce
+                    while pygame.mixer.music.get_busy():
+                        time.sleep(0.1)
+                    logger.info(f"Reproducción finalizada: {song_path}")
                 except Exception as e:
-                    logger.error(f"Error reproduciendo con winsound: {e}")
-                    return False
+                    logger.error(f"Error en thread de reproducción: {e}")
             
-            # macOS: usar afplay
-            elif system == 'Darwin':
-                self.current_player_process = subprocess.Popen(['afplay', song_path])
-                logger.info(f"Reproduciendo (afplay): {song_path}")
-                return True
+            # Iniciar el thread en background
+            player_thread = threading.Thread(target=play_thread, daemon=True)
+            player_thread.start()
+            self.current_player_process = player_thread
             
-            # Linux: usar paplay
-            elif system == 'Linux':
-                self.current_player_process = subprocess.Popen(['paplay', song_path])
-                logger.info(f"Reproduciendo (paplay): {song_path}")
-                return True
-            
-            else:
-                logger.error(f"Sistema no soportado: {system}")
-                return False
+            logger.info(f"Reproduciendo (pygame): {song_path} (duración: {duration:.2f}s)")
+            return True
                 
         except Exception as e:
             logger.error(f"Error reproduciendo canción: {e}")
+            # Intentar fallback con métodos del sistema operativo
+            try:
+                system = platform.system()
+                if system == 'Darwin':  # macOS
+                    self.current_player_process = subprocess.Popen(['afplay', song_path])
+                    logger.info(f"Fallback a afplay: {song_path}")
+                    return True
+                elif system == 'Linux':  # Linux
+                    self.current_player_process = subprocess.Popen(['paplay', song_path])
+                    logger.info(f"Fallback a paplay: {song_path}")
+                    return True
+            except Exception as e2:
+                logger.error(f"Error en fallback: {e2}")
             return False
     
     def stop_current_song(self):
         """Detiene la canción que está sonando actualmente"""
         try:
+            # Detener pygame si está reproduciendo
+            import pygame
+            if pygame.mixer.get_init():
+                if pygame.mixer.music.get_busy():
+                    pygame.mixer.music.stop()
+                    logger.info("Música detenida (pygame)")
+            
+            # Procesos (para fallback en macOS/Linux)
             if self.current_player_process:
                 # Si es un proceso (subprocess)
                 if isinstance(self.current_player_process, subprocess.Popen):
