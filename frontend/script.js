@@ -624,7 +624,7 @@ async function reproducirCancion(nombreArchivo) {
   try {
     // Crear URL para el archivo
     const audioUrl = `${API_URL}/../canciones/${nombreArchivo}`;
-    
+
     // Obtener o crear elemento de audio
     let audioPlayer = document.getElementById("audioPlayer");
     if (!audioPlayer) {
@@ -633,14 +633,16 @@ async function reproducirCancion(nombreArchivo) {
       audioPlayer.controls = false;
       document.body.appendChild(audioPlayer);
     }
-    
+
     // Establecer fuente y reproducir
     audioPlayer.src = audioUrl;
     audioPlayer.oncanplaythrough = () => {
-      audioPlayer.play().catch(err => console.error("Error reproduciendo:", err));
+      audioPlayer
+        .play()
+        .catch((err) => console.error("Error reproduciendo:", err));
     };
     audioPlayer.load();
-    
+
     // Notificar al backend
     await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
       method: "POST",
@@ -651,7 +653,7 @@ async function reproducirCancion(nombreArchivo) {
     alert("Error reproduciendo: " + error.message);
   }
 }
-}
+
 async function detenerCancion() {
   try {
     await fetchAPI(`${API_URL}/detener`, { method: "POST" });
