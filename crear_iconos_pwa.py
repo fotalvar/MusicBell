@@ -144,8 +144,9 @@ def create_maskable_icon(size):
 
 def main():
     # Crear carpeta images si no existe
-    images_dir = Path(__file__).parent.parent / 'frontend' / 'images'
-    images_dir.mkdir(exist_ok=True)
+    script_dir = Path(__file__).parent
+    images_dir = script_dir / 'frontend' / 'images'
+    images_dir.mkdir(parents=True, exist_ok=True)
     
     print("🎨 Generando iconos para PWA...\n")
     
