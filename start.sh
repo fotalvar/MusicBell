@@ -57,4 +57,4 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 cd backend
-python app.py
+python3 app.py
