@@ -622,7 +622,13 @@ async function agregarCancion(e) {
 }
 async function reproducirCancion(nombreArchivo) {
   try {
-    const response = await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
+    // Reproducir el audio directamente en el navegador
+    const audioPlayer = document.getElementById('audioPlayer') || crear AudioPlayer();
+    audioPlayer.src = `/canciones/${nombreArchivo}`;
+    audioPlayer.play();
+    
+    // Notificar al backend
+    await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
       method: "POST",
     });
     alert("Reproduciendo: " + nombreArchivo);
@@ -630,6 +636,17 @@ async function reproducirCancion(nombreArchivo) {
   } catch (error) {
     alert("Error reproduciendo: " + error.message);
   }
+}
+
+function crearAudioPlayer() {
+  let audio = document.getElementById('audioPlayer');
+  if (!audio) {
+    audio = document.createElement('audio');
+    audio.id = 'audioPlayer';
+    audio.hidden = true;
+    document.body.appendChild(audio);
+  }
+  return audio;
 }
 async function detenerCancion() {
   try {
