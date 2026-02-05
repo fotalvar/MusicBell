@@ -356,7 +356,13 @@ def apagar_aplicacion():
         scheduler.stop_current_song()
         scheduler.stop()
         import signal
-        os.kill(os.getpid(), signal.SIGTERM)
+        import threading
+        # Apagar en un thread para que el response se envíe correctamente
+        def shutdown():
+            import time
+            time.sleep(0.5)
+            os.kill(os.getpid(), signal.SIGTERM)
+        threading.Thread(target=shutdown, daemon=True).start()
         return jsonify({'mensaje': 'Aplicación apagada'})
     except Exception as e:
         logger.error(f"Error apagando aplicación: {e}")

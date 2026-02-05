@@ -655,11 +655,13 @@ async function reproducirCancion(nombreArchivo) {
 
 async function detenerCancion() {
   try {
-    // Detener el audio local
+    // Detener el audio local completamente
     const audioPlayer = document.getElementById("audioPlayer");
     if (audioPlayer) {
       audioPlayer.pause();
       audioPlayer.currentTime = 0;
+      audioPlayer.src = ""; // Limpiar la fuente
+      audioPlayer.oncanplaythrough = null; // Remover el event listener
     }
 
     // Notificar al backend
@@ -864,11 +866,24 @@ async function uploadarArchivos(files) {
   cerrarModalCargaRemota();
 }
 async function apagarAplicacion() {
-  if (!confirm("¿Estás seguro de que quieres apagar la aplicación?")) return;
   try {
-    await fetchAPI(`${API_URL}/apagar`, { method: "POST" });
+    // Detener cualquier reproducción local
+    const audioPlayer = document.getElementById("audioPlayer");
+    if (audioPlayer) {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      audioPlayer.src = "";
+      audioPlayer.oncanplaythrough = null;
+    }
+
+    // Notificar al backend y luego cerrar
+    await fetchAPI(`${API_URL}/apagar`, { method: "POST" }).catch(() => {});
+
+    // Cerrar la ventana del navegador
+    window.close();
   } catch (error) {
     console.error("Error apagando:", error);
+    window.close();
   }
 }
 document.addEventListener("visibilitychange", async () => {
