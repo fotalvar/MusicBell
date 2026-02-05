@@ -14,9 +14,12 @@ from datetime import datetime
 from pathlib import Path
 import signal
 import subprocess
+import codecs
 from utils import parsear_hora_a_segundos
 
-# Configurar logging
+# Registrar encoding error handler para Windows
+codecs.register_error('replace', lambda e: (e.object[e.start:e.end].encode('ascii', 'replace'), e.end))
+
 # Obtener la ruta del proyecto (padre del backend)
 project_root = Path(__file__).parent.parent
 logs_dir = project_root / 'logs'
@@ -26,7 +29,7 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(str(logs_dir / 'musicbell.log')),
+        logging.FileHandler(str(logs_dir / 'musicbell.log'), encoding='utf-8'),
         logging.StreamHandler()
     ]
 )
@@ -111,7 +114,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción usando VLC con manejo robusto de errores"""
+        """Reproduce una canción usando pygame con manejo robusto de errores"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -135,74 +138,50 @@ class MusicScheduler:
                 logger.error("El archivo es muy pequeño, probablemente corrupto")
                 return False
             
-            # Importar VLC
+            # Importar pygame
             try:
-                import vlc
+                import pygame
             except ImportError:
-                logger.error("❌ python-vlc NO ESTÁ INSTALADO")
-                logger.error("Instala con: python -m pip install python-vlc==3.0.20123")
+                logger.error("[ERROR] pygame NO ESTA INSTALADO")
+                logger.error("Instala con: python -m pip install pygame")
                 return False
             
-            logger.info("✅ VLC importado correctamente")
+            logger.info("[OK] pygame importado correctamente")
             
-            # Crear instancia VLC
+            # Inicializar mixer de pygame
             try:
-                logger.info("Creando instancia VLC...")
-                vlc_instance = vlc.Instance('--no-xlib', '--no-plugins-cache')
-                logger.info("✅ Instancia VLC creada")
+                logger.info("Inicializando mixer...")
+                pygame.mixer.init()
+                logger.info("[OK] Mixer inicializado")
             except Exception as e:
-                logger.error(f"❌ Error creando instancia VLC: {e}")
+                logger.error(f"[ERROR] Error inicializando mixer: {e}")
                 return False
             
-            # Crear media list
+            # Cargar y reproducir música
             try:
-                logger.info("Creando media list...")
-                media_list = vlc_instance.media_list_new()
-                logger.info("✅ Media list creada")
-            except Exception as e:
-                logger.error(f"❌ Error creando media list: {e}")
-                return False
-            
-            # Crear media item
-            try:
-                logger.info(f"Creando media item para: {song_path}")
-                media = vlc_instance.media_new(song_path)
-                media_list.add_media(media)
-                logger.info("✅ Media item agregado")
-            except Exception as e:
-                logger.error(f"❌ Error creando media item: {e}")
-                return False
-            
-            # Crear reproductor
-            try:
-                logger.info("Creando reproductor...")
-                player = vlc_instance.list_player_new()
-                player.set_media_list(media_list)
-                logger.info("✅ Reproductor creado")
-            except Exception as e:
-                logger.error(f"❌ Error creando reproductor: {e}")
-                return False
-            
-            # Reproducir
-            try:
-                logger.info("Iniciando reproducción...")
-                result = player.play()
-                logger.info(f"✅ Reproducción iniciada (resultado: {result})")
+                logger.info(f"Cargando musica: {song_path}")
+                pygame.mixer.music.load(song_path)
+                logger.info("[OK] Musica cargada")
                 
-                # Guardar instancias
-                self.current_player_process = player
-                self.vlc_instance = vlc_instance
-                self.vlc_media_list = media_list
+                logger.info("Iniciando reproduccion...")
+                pygame.mixer.music.play()
+                logger.info("[OK] Reproduccion iniciada")
                 
-                logger.info(f"✅ REPRODUCCIÓN EXITOSA: {song_path}")
+                # Guardar info de reproducción
+                self.current_player = pygame
+                self.current_player_process = True
+                
+                logger.info(f"[OK] REPRODUCCION EXITOSA: {song_path}")
                 return True
                 
             except Exception as e:
-                logger.error(f"❌ Error iniciando reproducción: {e}")
+                logger.error(f"[ERROR] Error reproduciendo: {e}")
+                import traceback
+                logger.error(traceback.format_exc())
                 return False
             
         except Exception as e:
-            logger.error(f"❌ ERROR CRÍTICO EN REPRODUCCIÓN: {e}")
+            logger.error(f"[ERROR] ERROR CRITICO EN REPRODUCCION: {e}")
             import traceback
             logger.error(traceback.format_exc())
             return False
@@ -213,33 +192,15 @@ class MusicScheduler:
         try:
             logger.info("Deteniendo reproducción...")
             
-            # Detener reproductor VLC
-            if self.current_player_process:
+            if self.current_player:
                 try:
-                    self.current_player_process.stop()
-                    logger.info("✅ VLC list_player detenido")
+                    self.current_player.mixer.music.stop()
+                    logger.info("✅ Música detenida")
                 except Exception as e:
-                    logger.warning(f"Error deteniendo player: {e}")
-                
-                self.current_player_process = None
+                    logger.warning(f"Error deteniendo música: {e}")
             
-            # Liberar media list
-            if self.vlc_media_list:
-                try:
-                    self.vlc_media_list = None
-                    logger.info("✅ Media list liberada")
-                except Exception as e:
-                    logger.warning(f"Error liberando media_list: {e}")
-            
-            # Liberar instancia VLC
-            if self.vlc_instance:
-                try:
-                    self.vlc_instance.release()
-                    logger.info("✅ Instancia VLC liberada")
-                except Exception as e:
-                    logger.warning(f"Error liberando VLC: {e}")
-                
-                self.vlc_instance = None
+            self.current_player_process = None
+            self.current_player = None
             
             logger.info("✅ Reproducción detenida")
             return True
@@ -247,7 +208,7 @@ class MusicScheduler:
         except Exception as e:
             logger.error(f"Error deteniendo canción: {e}")
             self.current_player_process = None
-            self.vlc_instance = None
+            self.current_player = None
             return False
     
     def check_conflicts(self, songs):
