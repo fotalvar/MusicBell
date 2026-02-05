@@ -49,13 +49,22 @@ MusicBell/
 
 ## 🚀 Inicio Rápido (60 segundos)
 
-### Requisitos Previos
+### Opción 1: Instalador Automático (Recomendado para Linux Mint)
 
-- **Python 3.8+**
-- **pip** (gestor de paquetes)
-- **Navegador moderno** (Chrome, Firefox, Safari, Edge)
+```bash
+# 1. Ejecutar el instalador de dependencias
+bash install-dependencies.sh
 
-### Instalación y Ejecución
+# 2. Esperar a que se instalen todas las dependencias
+# El script instalará: Python3, pip3, VLC, y todas las librerías necesarias
+
+# 3. Iniciar MusicBell
+bash start.sh
+
+# 4. Abrir en navegador: http://localhost:5000
+```
+
+### Opción 2: Instalación Manual
 
 ```bash
 # 1. Instalar dependencias
