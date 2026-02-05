@@ -161,8 +161,13 @@ class MusicScheduler:
             if system == 'Darwin':  # macOS
                 self.current_player_process = subprocess.Popen(['afplay', song_path])
             elif system == 'Windows':
-                # Usar wmplayer como fallback en Windows (más confiable que Media.SoundPlayer)
-                self.current_player_process = subprocess.Popen(['wmplayer', song_path])
+                # En Windows, usar 'start' para abrir con la aplicación por defecto
+                # Necesita comillas alrededor de la ruta
+                self.current_player_process = subprocess.Popen(
+                    ['cmd', '/c', f'start "" "{song_path}"'],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
             elif system == 'Linux':
                 self.current_player_process = subprocess.Popen(['paplay', song_path])
             
