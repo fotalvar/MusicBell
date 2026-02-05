@@ -50,7 +50,7 @@ bash start.sh
 #### Opción B: Comando directo
 
 ```bash
-python backend/app.py
+python3 backend/app.py
 ```
 
 ### 5. Acceder a la interfaz
@@ -173,8 +173,8 @@ lsof -i :5000
 
 ```bash
 # Instala VLC Media Player primero desde videolan.org
-python -m pip install --upgrade pip
-python -m pip install python-vlc==3.0.20123
+pip3 install --upgrade pip
+pip3 install python-vlc==3.0.20123
 ```
 
 ### Error de permisos

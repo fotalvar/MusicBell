@@ -6,14 +6,14 @@ En terminal (macOS/Linux):
 
 ```bash
 # 1. Instalar python-vlc
-python -m pip install python-vlc==3.0.20123
+pip3 install python-vlc==3.0.20123
 
 # 2. Instalar todas las dependencias
 cd backend
-python -m pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # 3. Ejecutar diagnóstico
-python diagnostico_audio.py
+python3 diagnostico_audio.py
 ```
 
 ---
@@ -31,14 +31,14 @@ VLC es la solución definitiva:
 ### ✔️ 1. Verificar python-vlc
 
 ```bash
-python -c "import vlc; print('OK')"
+python3 -c "import vlc; print('OK')"
 ```
 
 Si falla:
 
 ```bash
-python -m pip install --upgrade pip
-python -m pip install python-vlc==3.0.20123
+pip3 install --upgrade pip
+pip3 install python-vlc==3.0.20123
 ```
 
 ### ✔️ 2. Verificar archivos MP3
@@ -72,8 +72,8 @@ Busca líneas con:
 ### Error: "No module named vlc"
 
 ```bash
-python -m pip install --upgrade pip
-python -m pip install python-vlc==3.0.20123
+pip3 install --upgrade pip
+pip3 install python-vlc==3.0.20123
 ```
 
 ### Error: "Archivo no encontrado"
@@ -125,10 +125,10 @@ Si ninguna solución funciona, reporta con:
 
 ```bash
 # 1. Versión de Python
-python --version
+python3 --version
 
 # 2. python-vlc instalado?
-python -m pip show python-vlc
+pip3 show python-vlc
 
 # 3. Últimos logs
 tail -50 logs/musicbell.log
@@ -137,7 +137,7 @@ tail -50 logs/musicbell.log
 ls -la canciones/
 
 # 5. Test automático
-python diagnostico_audio.py
+python3 diagnostico_audio.py
 ```
 
 ---
@@ -146,7 +146,7 @@ python diagnostico_audio.py
 
 | Problema               | Solución                                    |
 | ---------------------- | ------------------------------------------- |
-| "python-vlc not found" | `pip install python-vlc==3.0.20123`         |
+| "python-vlc not found" | `pip3 install python-vlc==3.0.20123`        |
 | "libvlc not found"     | Instala VLC Media Player desde videolan.org |
 | No suena nada          | Ejecuta `diagnostico_audio.py`              |
 | Volumen = 0            | Sube volumen del sistema                    |
@@ -162,7 +162,7 @@ Si quieres ver qué está pasando en real-time:
 ```bash
 # Terminal: Backend en modo verbose
 export FLASK_DEBUG=True
-python backend/app.py
+python3 backend/app.py
 
 # Otra terminal: Ver logs en tiempo real
 tail -f logs/musicbell.log

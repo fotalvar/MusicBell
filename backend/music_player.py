@@ -137,7 +137,7 @@ class MusicScheduler:
             try:
                 import vlc
             except ImportError:
-                logger.error("[ERROR] python-vlc NO DISPONIBLE. Instala: pip install python-vlc")
+                logger.error("[ERROR] python-vlc NO DISPONIBLE. Instala: pip3 install python-vlc")
                 return False
             
             logger.info("[OK] VLC importado correctamente")

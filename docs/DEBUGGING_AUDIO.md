@@ -8,7 +8,7 @@ En terminal:
 
 ```bash
 cd MusicBell/backend
-python test_vlc_simple.py
+python3 test_vlc_simple.py
 ```
 
 **Resultado esperado:**
@@ -40,13 +40,13 @@ file ../canciones/cancion.mp3
 ### PASO 3: Verifica Python VLC
 
 ```bash
-python -c "import vlc; print('VLC:', vlc.__version__)"
+python3 -c "import vlc; print('VLC:', vlc.__version__)"
 ```
 
 **Si falla:** Instala VLC:
 
 ```bash
-python -m pip install --upgrade python-vlc==3.0.20123
+pip3 install --upgrade python-vlc==3.0.20123
 ```
 
 ---
@@ -58,7 +58,7 @@ python -m pip install --upgrade python-vlc==3.0.20123
 ```bash
 cd MusicBell
 export FLASK_DEBUG=True
-python backend/app.py
+python3 backend/app.py
 ```
 
 2. Abre en navegador: `http://localhost:5000`
@@ -128,13 +128,13 @@ Si nada funciona, comparte:
 
 ```bash
 # 1. Versión Python
-python --version
+python3 --version
 
 # 2. VLC instalado?
-python -m pip show python-vlc
+pip3 show python-vlc
 
 # 3. Resultado del test simple
-python backend/test_vlc_simple.py
+python3 backend/test_vlc_simple.py
 
 # 4. Últimos logs
 tail -50 logs/musicbell.log
@@ -162,8 +162,8 @@ python
 ### "Error: python-vlc not found"
 
 ```bash
-python -m pip install --upgrade pip
-python -m pip install python-vlc==3.0.20123
+pip3 install --upgrade pip
+pip3 install python-vlc==3.0.20123
 ```
 
 ### "Permisos denegados"
@@ -219,11 +219,11 @@ Si esto funciona, VLC está bien instalado.
 1. Desinstala y reinstala VLC Media Player: https://www.videolan.org/vlc/
 2. Desinstala python-vlc:
    ```bash
-   python -m pip uninstall python-vlc
+   pip3 uninstall python-vlc
    ```
 3. Reinstala python-vlc:
    ```bash
-   python -m pip install python-vlc==3.0.20123
+   pip3 install python-vlc==3.0.20123
    ```
 4. Reinicia tu sistema
 5. Intenta de nuevo

@@ -59,13 +59,13 @@ MusicBell/
 
 ```bash
 # 1. Instalar dependencias
-pip install -r backend/requirements.txt
+pip3 install -r backend/requirements.txt
 
 # 2. Crear carpeta de canciones si no existe
 mkdir -p canciones
 
 # 3. Ejecutar la aplicación
-python backend/app.py
+python3 backend/app.py
 ```
 
 ### Acceso a la Interfaz
@@ -312,7 +312,7 @@ cd ..
 ```bash
 # Desde la raíz del proyecto
 cd backend
-python app.py
+python3 app.py
 ```
 
 Luego abre tu navegador en: `http://localhost:5000`

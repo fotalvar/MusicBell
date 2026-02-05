@@ -28,7 +28,7 @@ source venv/bin/activate
 
 ```bash
 cd backend
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 cd ..
 ```
 
@@ -36,7 +36,7 @@ cd ..
 
 ```bash
 export FLASK_DEBUG=True
-python backend/app.py
+python3 backend/app.py
 ```
 
 ---
@@ -188,14 +188,14 @@ curl -X POST http://localhost:5000/api/detener
 
 ```bash
 # Iniciar en modo desarrollo
-FLASK_DEBUG=True python backend/app.py
+FLASK_DEBUG=True python3 backend/app.py
 
 # Instalar nueva dependencia
-pip install paquete_nuevo
-pip freeze > backend/requirements.txt
+pip3 install paquete_nuevo
+pip3 freeze > backend/requirements.txt
 
 # Ejecutar tests (futuro)
-python -m pytest
+python3 -m pytest
 
 # Formatear código
 black backend/
