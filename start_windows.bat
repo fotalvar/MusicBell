@@ -9,21 +9,17 @@ if errorlevel 1 (
     exit /b 1
 )
 
-REM Limpiar venv antiguo si existe
-if exist backend\venv (
-    echo Limpiando entorno virtual antiguo...
-    rmdir /s /q backend\venv >nul 2>&1
+REM Crear venv solo si no existe
+if not exist backend\venv (
+    echo Creando entorno virtual...
+    python -m venv backend\venv
+    if errorlevel 1 (
+        echo ❌ Error creando venv
+        pause
+        exit /b 1
+    )
+    echo ✓ Entorno virtual creado
 )
-
-REM Crear venv nuevo
-echo Creando entorno virtual...
-python -m venv backend\venv
-if errorlevel 1 (
-    echo ❌ Error creando venv
-    pause
-    exit /b 1
-)
-echo ✓ Entorno virtual creado
 
 REM Activar
 echo Activando entorno virtual...
@@ -37,20 +33,16 @@ if errorlevel 1 (
 )
 echo ✓ Activado
 
-REM Actualizar pip
-echo Actualizando pip...
-python -m pip install --upgrade pip >nul 2>&1
-
-REM Instalar dependencias
-echo Instalando dependencias...
-pip install -r requirements.txt
+REM Instalar dependencias (solo si no están ya)
+echo Verificando dependencias...
+pip install -r requirements.txt --quiet
 if errorlevel 1 (
     echo ❌ Error instalando dependencias
     cd ..
     pause
     exit /b 1
 )
-echo ✓ Dependencias instaladas
+echo ✓ Dependencias OK
 
 REM Iniciar app
 echo.

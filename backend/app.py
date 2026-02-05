@@ -47,11 +47,18 @@ def liberar_puerto_5000():
                     for line in result.stdout.strip().split('\n'):
                         if line.strip():
                             pid = line.strip().split()[-1]
-                            try:
-                                subprocess.run(f'taskkill /PID {pid} /F', shell=True)
-                                logger.info(f"✓ Proceso {pid} en puerto {PORT} terminado")
-                            except:
-                                pass
+                            # Ignorar PID 0 (es proceso del sistema)
+                            if pid and pid != '0':
+                                try:
+                                    subprocess.run(
+                                        f'taskkill /PID {pid} /F',
+                                        shell=True,
+                                        capture_output=True,
+                                        stderr=subprocess.DEVNULL
+                                    )
+                                    logger.info(f"✓ Proceso {pid} en puerto {PORT} terminado")
+                                except:
+                                    pass
             except Exception as e:
                 logger.warning(f"No se pudo liberar puerto en Windows: {e}")
         
