@@ -23,6 +23,16 @@ if errorlevel 1 (
 echo.
 for /f "tokens=*" %%i in ('python --version') do echo ✓ %%i encontrado
 
+REM Liberar puerto 5000
+echo.
+echo 🔍 Verificando puerto 5000...
+for /f "tokens=5" %%a in ('netstat -ano ^| find "5000"') do (
+    echo ⚠️  Encontrado proceso usando puerto 5000, matando...
+    taskkill /PID %%a /F >nul 2>&1
+)
+echo ✓ Puerto 5000 liberado
+echo.
+
 REM Instalar dependencias si es necesario
 if not exist "backend\venv" (
     echo.
@@ -47,15 +57,6 @@ call backend\venv\Scripts\activate.bat
 
 REM Mostrar información
 echo.
-echo Folder de trabajo: %cd%
-echo Carpeta de canciones: %cd%\canciones
-echo Logs: %cd%\logs
-echo.
-echo Iniciando servidor...
-echo.
-
-REM Iniciar la aplicación
-cd backend
-python app.py
-
-pause
+echo 📂 Carpeta de trabajo: %cd%
+echo 🎵 Carpeta de canciones: %cd%\canciones
+echo 📝 Logs: %cd%\logs

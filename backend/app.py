@@ -3,7 +3,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-import os, socket, threading, logging
+import os, socket, threading, logging, subprocess, platform, time
 from pathlib import Path
 from datetime import datetime
 from music_player import MusicScheduler
@@ -22,6 +22,70 @@ logger = logging.getLogger(__name__)
 scheduler = None
 server_ip = None
 server_port = None
+
+
+def liberar_puerto_5000():
+    """
+    Libera el puerto 5000 matando cualquier proceso que lo esté usando
+    Funciona en Windows, macOS y Linux
+    """
+    PORT = 5000
+    try:
+        system = platform.system()
+        
+        if system == 'Windows':
+            # En Windows, usar netstat y taskkill
+            try:
+                result = subprocess.run(
+                    f'netstat -ano | findstr :{PORT}',
+                    shell=True,
+                    capture_output=True,
+                    text=True
+                )
+                if result.stdout:
+                    # Extraer el PID (último número en cada línea)
+                    for line in result.stdout.strip().split('\n'):
+                        if line.strip():
+                            pid = line.strip().split()[-1]
+                            try:
+                                subprocess.run(f'taskkill /PID {pid} /F', shell=True)
+                                logger.info(f"✓ Proceso {pid} en puerto {PORT} terminado")
+                            except:
+                                pass
+            except Exception as e:
+                logger.warning(f"No se pudo liberar puerto en Windows: {e}")
+        
+        else:  # macOS y Linux
+            # Usar lsof y kill
+            try:
+                result = subprocess.run(
+                    f'lsof -i :{PORT}',
+                    shell=True,
+                    capture_output=True,
+                    text=True
+                )
+                if result.stdout:
+                    # Procesar output de lsof
+                    lines = result.stdout.strip().split('\n')[1:]  # Skip header
+                    for line in lines:
+                        if line.strip():
+                            pid = line.split()[1]
+                            try:
+                                os.kill(int(pid), 9)
+                                logger.info(f"✓ Proceso {pid} en puerto {PORT} terminado")
+                            except:
+                                pass
+            except Exception as e:
+                logger.warning(f"No se pudo liberar puerto en {system}: {e}")
+        
+        # Esperar un momento para asegurar que el puerto se libere
+        time.sleep(1)
+        logger.info(f"✓ Puerto {PORT} liberado correctamente")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error liberando puerto {PORT}: {e}")
+        return False
 
 @app.route('/api/canciones', methods=['GET'])
 def get_canciones():
@@ -305,6 +369,10 @@ def init_scheduler():
     scheduler.run()
 
 if __name__ == '__main__':
+    # Liberar puerto 5000 antes de iniciar
+    logger.info("🔍 Verificando instancias anteriores...")
+    liberar_puerto_5000()
+    
     (project_root / 'canciones').mkdir(parents=True, exist_ok=True)
     (project_root / 'config').mkdir(parents=True, exist_ok=True)
     (project_root / 'logs').mkdir(parents=True, exist_ok=True)
@@ -312,19 +380,8 @@ if __name__ == '__main__':
     scheduler_thread = threading.Thread(target=init_scheduler, daemon=True)
     scheduler_thread.start()
     
-    def find_available_port(start_port=5000):
-        for port in range(start_port, start_port + 10):
-            try:
-                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                result = sock.connect_ex(('127.0.0.1', port))
-                sock.close()
-                if result != 0:
-                    return port
-            except:
-                return port
-        return start_port
-    
-    server_port = find_available_port()
+    # Usar siempre puerto 5000
+    server_port = 5000
     
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
