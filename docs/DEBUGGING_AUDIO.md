@@ -1,13 +1,13 @@
-# Debugging: Sin Sonido en Windows
+# Debugging: Sin Sonido en macOS/Linux
 
 ## 🚨 Pasos para Diagnosticar (En orden)
 
 ### PASO 1: Verifica VLC Básico
 
-En PowerShell/CMD:
+En terminal:
 
 ```bash
-cd C:\ruta\a\MusicBell\backend
+cd MusicBell/backend
 python test_vlc_simple.py
 ```
 
@@ -27,12 +27,10 @@ Si falla aquí, VLC no está correctamente instalado.
 
 ```bash
 # Ver archivos
-dir ..\canciones\
+ls ../canciones/
 
 # Probar si un archivo MP3 es válido
-cd ..\canciones
-# Intenta reproducir manualmente un MP3 en Windows
-# (Haz doble clic en un archivo .mp3)
+file ../canciones/cancion.mp3
 ```
 
 **Si no suena**: El archivo MP3 está corrupto.
@@ -55,15 +53,15 @@ python -m pip install --upgrade python-vlc==3.0.20123
 
 ### PASO 4: Verifica Flask recibe la orden
 
-1. En PowerShell, ejecuta el backend en modo verbose:
+1. En terminal, ejecuta el backend en modo verbose:
 
 ```bash
-cd C:\ruta\a\MusicBell
-set FLASK_DEBUG=True
-python backend\app.py
+cd MusicBell
+export FLASK_DEBUG=True
+python backend/app.py
 ```
 
-2. Abre en Chrome: `http://localhost:5000`
+2. Abre en navegador: `http://localhost:5000`
 
 3. Ve a "Reproducción" y haz clic en "▶ Reproducir"
 
@@ -71,7 +69,7 @@ python backend\app.py
 
 ```
 POST /api/reproducir/cancion.mp3
-Intentando reproducir: C:\ruta\a\canciones\cancion.mp3
+Intentando reproducir: /ruta/a/canciones/cancion.mp3
 ✅ REPRODUCCIÓN EXITOSA
 ```
 
@@ -83,10 +81,7 @@ Si ves este mensaje pero NO suena, continúa...
 
 ```bash
 # Ver últimas líneas del log
-Get-Content logs\musicbell.log -Tail 50  # PowerShell
-
-# O en CMD:
-type logs\musicbell.log
+tail -50 logs/musicbell.log
 ```
 
 **Busca líneas con:**
@@ -100,23 +95,17 @@ type logs\musicbell.log
 ### PASO 6: Verifica Permisos de Carpeta
 
 ```bash
-# En PowerShell (como admin):
-icacls "C:\ruta\a\MusicBell\canciones" /grant:r "%USERNAME%":F
-
-# En CMD (como admin):
-cacls "C:\ruta\a\MusicBell\canciones" /G Everyone:F
+# En Linux/macOS
+chmod -R 755 canciones/
 ```
 
 ---
 
-### PASO 7: Verifica Volumen de Windows
+### PASO 7: Verifica Volumen del Sistema
 
-1. **Click derecho en ícono de volumen** (esquina inferior derecha)
-2. **Volume mixer** → Verifica que:
-   - Sistema NO está en silencio
-   - No hay muteado ningún dispositivo
-3. **Prueba sonido del sistema**:
-   - Settings > Sound > Volume > Test sound
+1. **Ajusta el volumen del sistema** desde el control de volumen de tu SO
+2. **Prueba sonido del sistema** - Reproduce un video en YouTube
+3. **Comprueba que no esté silenciado**
 
 ---
 
@@ -125,11 +114,11 @@ cacls "C:\ruta\a\MusicBell\canciones" /G Everyone:F
 | Síntoma                            | Causa Probable          | Solución                            |
 | ---------------------------------- | ----------------------- | ----------------------------------- |
 | `test_vlc_simple.py` falla         | VLC no instalado        | `pip install python-vlc==3.0.20123` |
-| Flask dice "EXITOSO" pero no suena | Volumen = 0             | Sube volumen de Windows             |
+| Flask dice "EXITOSO" pero no suena | Volumen = 0             | Sube volumen del sistema            |
 | "❌ python-vlc not found"          | Librería no instalada   | `pip install python-vlc==3.0.20123` |
 | Archivo MP3 no reproduce           | Archivo corrupto        | Descarga otro MP3 de prueba         |
 | Logs vacíos                        | Backend no ejecutándose | Inicia el backend                   |
-| "Permiso denegado"                 | Permisos carpeta        | Ejecuta como admin                  |
+| "Permiso denegado"                 | Permisos carpeta        | `chmod -R 755 canciones/`           |
 
 ---
 
@@ -145,13 +134,13 @@ python --version
 python -m pip show python-vlc
 
 # 3. Resultado del test simple
-python backend\test_vlc_simple.py
+python backend/test_vlc_simple.py
 
 # 4. Últimos logs
-type logs\musicbell.log
+tail -50 logs/musicbell.log
 
 # 5. Contenido de canciones/
-dir canciones\
+ls -la canciones/
 
 # 6. Intentar reproducir manualmente
 python
@@ -166,7 +155,7 @@ python
 
 ### "No suena pero Flask dice que funciona"
 
-- Sube volumen de Windows
+- Sube volumen del sistema
 - Verifica que los altavoces están conectados
 - Prueba reproducir un video en YouTube
 
@@ -179,12 +168,13 @@ python -m pip install python-vlc==3.0.20123
 
 ### "Permisos denegados"
 
-- Ejecuta PowerShell **como administrador**
-- Intenta de nuevo
+```bash
+chmod -R 755 canciones/
+```
 
 ### "Archivo no encontrado"
 
-- Verifica que los MP3 están en `C:\ruta\a\MusicBell\canciones\`
+- Verifica que los MP3 están en `MusicBell/canciones/`
 - Las mayúsculas/minúsculas importan
 
 ---
@@ -198,7 +188,7 @@ import vlc
 import time
 
 # Ruta del archivo
-audio_file = r"C:\ruta\a\tu\archivo.mp3"
+audio_file = "MusicBell/canciones/tu_archivo.mp3"
 
 # Crear instancia
 instance = vlc.Instance()
@@ -235,7 +225,7 @@ Si esto funciona, VLC está bien instalado.
    ```bash
    python -m pip install python-vlc==3.0.20123
    ```
-4. Reinicia Windows
+4. Reinicia tu sistema
 5. Intenta de nuevo
 
 ---

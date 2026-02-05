@@ -3,7 +3,7 @@
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
-import os, socket, threading, logging, subprocess, platform, time
+import os, socket, threading, logging, subprocess, time
 from pathlib import Path
 from datetime import datetime
 from music_player import MusicScheduler
@@ -27,63 +27,31 @@ server_port = None
 def liberar_puerto_5000():
     """
     Libera el puerto 5000 matando cualquier proceso que lo esté usando
-    Funciona en Windows, macOS y Linux
+    Compatible con macOS y Linux
     """
     PORT = 5000
     try:
-        system = platform.system()
-        
-        if system == 'Windows':
-            # En Windows, usar netstat y taskkill
-            try:
-                result = subprocess.run(
-                    f'netstat -ano | findstr :{PORT}',
-                    shell=True,
-                    capture_output=True,
-                    text=True
-                )
-                if result.stdout:
-                    # Extraer el PID (último número en cada línea)
-                    for line in result.stdout.strip().split('\n'):
-                        if line.strip():
-                            pid = line.strip().split()[-1]
-                            # Ignorar PID 0 (es proceso del sistema)
-                            if pid and pid != '0':
-                                try:
-                                    subprocess.run(
-                                        f'taskkill /PID {pid} /F',
-                                        shell=True,
-                                        capture_output=True,
-                                        stderr=subprocess.DEVNULL
-                                    )
-                                    logger.info(f"Proceso {pid} en puerto {PORT} terminado")
-                                except:
-                                    pass
-            except Exception as e:
-                logger.warning(f"No se pudo liberar puerto en Windows: {e}")
-        
-        else:  # macOS y Linux
-            # Usar lsof y kill
-            try:
-                result = subprocess.run(
-                    f'lsof -i :{PORT}',
-                    shell=True,
-                    capture_output=True,
-                    text=True
-                )
-                if result.stdout:
-                    # Procesar output de lsof
-                    lines = result.stdout.strip().split('\n')[1:]  # Skip header
-                    for line in lines:
-                        if line.strip():
-                            pid = line.split()[1]
-                            try:
-                                os.kill(int(pid), 9)
-                                logger.info(f"Proceso {pid} en puerto {PORT} terminado")
-                            except:
-                                pass
-            except Exception as e:
-                logger.warning(f"No se pudo liberar puerto en {system}: {e}")
+        # Usar lsof y kill (disponible en macOS y Linux)
+        try:
+            result = subprocess.run(
+                f'lsof -i :{PORT}',
+                shell=True,
+                capture_output=True,
+                text=True
+            )
+            if result.stdout:
+                # Procesar output de lsof
+                lines = result.stdout.strip().split('\n')[1:]  # Skip header
+                for line in lines:
+                    if line.strip():
+                        pid = line.split()[1]
+                        try:
+                            os.kill(int(pid), 9)
+                            logger.info(f"Proceso {pid} en puerto {PORT} terminado")
+                        except:
+                            pass
+        except Exception as e:
+            logger.warning(f"No se pudo liberar puerto: {e}")
         
         # Esperar un momento para asegurar que el puerto se libere
         time.sleep(1)

@@ -19,13 +19,9 @@ cd MusicBell
 ### 2. Crear entorno virtual
 
 ```bash
-# macOS/Linux
+# Crear entorno virtual
 python3 -m venv venv
 source venv/bin/activate
-
-# Windows
-python -m venv venv
-venv\Scripts\activate
 ```
 
 ### 3. Instalar dependencias
@@ -39,7 +35,7 @@ cd ..
 ### 4. Ejecutar en modo desarrollo
 
 ```bash
-export FLASK_DEBUG=True  # macOS/Linux
+export FLASK_DEBUG=True
 python backend/app.py
 ```
 
@@ -123,9 +119,9 @@ POST /api/reproducir/cancion.mp3
     ↓
 Backend (music_player.py)
     ↓
-play_song() con playsound
+play_song() con VLC
     ↓
-Altavoces Windows
+Altavoces (macOS/Linux)
 ```
 
 ---

@@ -7,18 +7,13 @@ Script principal que se ejecuta en segundo plano
 import json
 import os
 import time
-import platform
 import logging
 import threading
 from datetime import datetime
 from pathlib import Path
 import signal
 import subprocess
-import codecs
 from utils import parsear_hora_a_segundos
-
-# Registrar encoding error handler para Windows
-codecs.register_error('replace', lambda e: (e.object[e.start:e.end].encode('ascii', 'replace'), e.end))
 
 # Obtener la ruta del proyecto (padre del backend)
 project_root = Path(__file__).parent.parent
@@ -114,7 +109,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una cancion usando winsound (nativo de Windows)"""
+        """Reproduce una canción usando VLC (compatible con macOS y Linux)"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -131,51 +126,50 @@ class MusicScheduler:
             
             # Verificar que el archivo es válido
             if os.path.getsize(song_path) == 0:
-                logger.error("El archivo esta vacio")
+                logger.error("El archivo está vacío")
                 return False
             
             if os.path.getsize(song_path) < 5000:  # Menos de 5KB
-                logger.error("El archivo es muy pequeno, probablemente corrupto")
+                logger.error("El archivo es muy pequeño, probablemente corrupto")
                 return False
             
-            # Importar winsound (nativo de Windows)
+            # Usar VLC para reproducir (compatible con macOS y Linux)
             try:
-                import winsound
+                import vlc
             except ImportError:
-                logger.error("[ERROR] winsound NO DISPONIBLE (solo funciona en Windows)")
+                logger.error("[ERROR] python-vlc NO DISPONIBLE. Instala: pip install python-vlc")
                 return False
             
-            logger.info("[OK] winsound importado correctamente")
+            logger.info("[OK] VLC importado correctamente")
             
-            # Reproducir música en thread separado para no bloquear
-            def play_thread():
-                try:
-                    logger.info(f"Cargando y reproduciendo: {song_path}")
-                    winsound.PlaySound(song_path, winsound.SND_FILENAME)
-                    logger.info("[OK] Reproduccion completada")
-                except Exception as e:
-                    logger.error(f"[ERROR] Error en reproduccion: {e}")
-            
-            # Crear thread de reproducción
+            # Reproducir música usando VLC
             try:
-                import threading
-                player_thread = threading.Thread(target=play_thread, daemon=True)
-                player_thread.start()
+                # Crear instancia de VLC
+                instance = vlc.Instance()
+                media = instance.media_new(song_path)
+                player = instance.media_list_player_new()
+                media_list = instance.media_list_new()
+                media_list.add_media(media)
+                player.set_media_list(media_list)
                 
-                self.current_player_process = player_thread
-                self.current_player = winsound
+                # Reproducir
+                player.play()
                 
-                logger.info("[OK] REPRODUCCION INICIADA: {song_path}")
+                # Guardar referencias
+                self.current_player_process = player
+                self.current_player = instance
+                
+                logger.info(f"[OK] REPRODUCCION INICIADA: {song_path}")
                 return True
                 
             except Exception as e:
-                logger.error(f"[ERROR] Error creando thread de reproduccion: {e}")
+                logger.error(f"[ERROR] Error usando VLC: {e}")
                 import traceback
                 logger.error(traceback.format_exc())
                 return False
             
         except Exception as e:
-            logger.error(f"[ERROR] ERROR CRITICO EN REPRODUCCION: {e}")
+            logger.error(f"[ERROR] ERROR CRÍTICO EN REPRODUCCION: {e}")
             import traceback
             logger.error(traceback.format_exc())
             return False
@@ -183,26 +177,26 @@ class MusicScheduler:
     
     def stop_current_song(self):
         """Detiene la cancion que esta sonando actualmente"""
+        try:ón que está sonando actualmente"""
         try:
-            logger.info("Deteniendo reproduccion...")
+            logger.info("Deteniendo reproducción...")
             
-            if self.current_player:
+            if self.current_player_process:
                 try:
-                    # winsound se detiene automáticamente al finalizar
-                    # Solo registramos que se detiene
-                    logger.info("[OK] Musica detenida")
+                    # Detener el reproductor VLC
+                    self.current_player_process.stop()
+                    logger.info("[OK] Música detenida")
                 except Exception as e:
-                    logger.warning(f"Error deteniendo musica: {e}")
+                    logger.warning(f"Error deteniendo música: {e}")
             
             self.current_player_process = None
             self.current_player = None
             
-            logger.info("[OK] Reproduccion detenida")
+            logger.info("[OK] Reproducción detenida")
             return True
             
         except Exception as e:
-            logger.error(f"Error deteniendo cancion: {e}")
-            self.current_player_process = None
+            logger.error(f"Error deteniendo canció
             self.current_player = None
             return False
     

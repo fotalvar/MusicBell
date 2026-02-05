@@ -2,7 +2,7 @@
 
 ## ✅ Instalación Rápida
 
-En PowerShell/CMD en Windows:
+En terminal (macOS/Linux):
 
 ```bash
 # 1. Instalar python-vlc
@@ -25,42 +25,39 @@ VLC es la solución definitiva:
 ✅ **Sin interfaz gráfica** - Solo reproduce audio, sin abrir ventanas  
 ✅ **Sin procesos visibles** - El sonido sale directamente por los altavoces  
 ✅ **Soporta todos los formatos** - MP3, FLAC, WAV, OGG, etc.  
-✅ **Multiplataforma** - Windows, macOS, Linux  
+✅ **Multiplataforma** - macOS, Linux  
 ✅ **Robusto** - Usado por millones de usuarios
 
-### ✔️ 1. Playsound instalado
+### ✔️ 1. Verificar python-vlc
 
 ```bash
-python -c "import playsound; print('OK')"
+python -c "import vlc; print('OK')"
 ```
 
 Si falla:
 
 ```bash
 python -m pip install --upgrade pip
-python -m pip install playsound==1.2.2
+python -m pip install python-vlc==3.0.20123
 ```
 
 ### ✔️ 2. Verificar archivos MP3
 
-- Abre la carpeta: `C:\ruta\a\MusicBell\canciones\`
+- Abre la carpeta: `MusicBell/canciones/`
 - Debe haber archivos `.mp3`
-- Prueba reproducir manualmente un MP3 en Windows
+- Prueba reproducir manualmente un MP3
 
 ### ✔️ 3. Verificar volumen
 
-- **Click derecho en ícono de volumen** (esquina inferior derecha)
+- Usa los controles de volumen de tu sistema operativo
 - Asegúrate que el volumen **NO está en 0**
-- Prueba sonido del sistema: Settings > Sound > Volume mixer
+- Prueba reproducir un video en YouTube
 
 ### ✔️ 4. Revisar logs
 
 ```bash
 # Ver últimas líneas del log
-cat logs\musicbell.log | tail -20
-
-# En PowerShell:
-Get-Content logs\musicbell.log -Tail 20
+tail -20 logs/musicbell.log
 ```
 
 Busca líneas con:
@@ -72,17 +69,11 @@ Busca líneas con:
 
 ## 🛠️ Soluciones por Error
 
-### Error: "playsound is not defined"
-
-```bash
-python -m pip install playsound==1.2.2
-```
-
-### Error: "No module named playsound"
+### Error: "No module named vlc"
 
 ```bash
 python -m pip install --upgrade pip
-python -m pip install playsound==1.2.2
+python -m pip install python-vlc==3.0.20123
 ```
 
 ### Error: "Archivo no encontrado"
@@ -108,41 +99,23 @@ pip install -r requirements.txt
 
 ---
 
-## 🔄 Fallbacks Automáticos
-
-Si `playsound` falla, el backend intenta automáticamente:
-
-1. **playsound** (Python library)
-2. **wmplayer.exe** (Windows Media Player)
-3. Error registrado en logs
-
-Ambos métodos deberían funcionar si Windows está bien configurado.
-
----
-
 ## 🧪 Pruebas Manuales
 
-### Test 1: Verificar playsound
+### Test 1: Verificar VLC
 
 ```python
 python
->>> from playsound import playsound
->>> playsound(r"C:\ruta\a\cancion.mp3")
-# Debería sonar aquí
+>>> import vlc
+>>> instance = vlc.Instance()
+# Si no da error, VLC funciona correctamente
 ```
 
-### Test 2: Verificar wmplayer
-
-```bash
-"C:\Program Files\Windows Media Player\wmplayer.exe" "C:\ruta\a\cancion.mp3"
-```
-
-### Test 3: Reproducir desde frontend
+### Test 2: Reproducir desde frontend
 
 1. Abre http://localhost:5000
 2. Ve a pestaña "Reproducción"
 3. Haz click en "▶ Reproducir" en cualquier canción
-4. Revisa logs: `logs\musicbell.log`
+4. Revisa logs: `logs/musicbell.log`
 
 ---
 
@@ -158,10 +131,10 @@ python --version
 python -m pip show python-vlc
 
 # 3. Últimos logs
-cat logs\musicbell.log
+tail -50 logs/musicbell.log
 
 # 4. Archivos en canciones/
-dir canciones\
+ls -la canciones/
 
 # 5. Test automático
 python diagnostico_audio.py
@@ -176,9 +149,9 @@ python diagnostico_audio.py
 | "python-vlc not found" | `pip install python-vlc==3.0.20123`         |
 | "libvlc not found"     | Instala VLC Media Player desde videolan.org |
 | No suena nada          | Ejecuta `diagnostico_audio.py`              |
-| Volumen = 0            | Sube volumen de Windows                     |
+| Volumen = 0            | Sube volumen del sistema                    |
 | Archivo no existe      | Verifica `canciones/`                       |
-| Aún no funciona        | Reinicia backend y Windows                  |
+| Aún no funciona        | Reinicia backend                            |
 
 ---
 
@@ -187,12 +160,12 @@ python diagnostico_audio.py
 Si quieres ver qué está pasando en real-time:
 
 ```bash
-# Terminal 1: Backend en modo verbose
-FLASK_DEBUG=True python backend/app.py
+# Terminal: Backend en modo verbose
+export FLASK_DEBUG=True
+python backend/app.py
 
-# Terminal 2: Ver logs en tiempo real
-Get-Content logs\musicbell.log -Wait  # PowerShell
-tail -f logs/musicbell.log            # CMD
+# Otra terminal: Ver logs en tiempo real
+tail -f logs/musicbell.log
 ```
 
 ---

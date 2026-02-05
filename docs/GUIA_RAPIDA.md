@@ -13,18 +13,9 @@ Sistema automático para reproducir música en escuelas, oficinas y espacios pú
 
 ## Inicio Rápido (60 segundos)
 
-### macOS / Linux
-
 ```bash
 cd MusicBell
 bash start.sh
-```
-
-### Windows
-
-```bash
-cd MusicBell
-start_windows.bat
 ```
 
 Luego abre: **http://localhost:5000**
@@ -86,18 +77,18 @@ En la pestaña **Reproducción**, puedes reproducir cualquier canción al instan
 
 ## Solución Rápida de Problemas
 
-| Problema                  | Solución                                                 |
-| ------------------------- | -------------------------------------------------------- |
-| No se escucha nada        | Verifica volumen de Windows, revisa `logs/musicbell.log` |
-| La app se cerró           | Reinicia desde terminal                                  |
-| No aparecen mis canciones | Comprueba que están en `canciones/` en formato MP3       |
-| Puerto 5000 en uso        | Cambia el puerto en `backend/app.py`                     |
+| Problema                  | Solución                                           |
+| ------------------------- | -------------------------------------------------- |
+| No se escucha nada        | Revisa `logs/musicbell.log`                        |
+| La app se cerró           | Reinicia desde terminal                            |
+| No aparecen mis canciones | Comprueba que están en `canciones/` en formato MP3 |
+| Puerto 5000 en uso        | Cambia el puerto en `backend/app.py`               |
 
 ---
 
 ## Próximos Pasos
 
-- Lee [INSTALACION.md](INSTALACION.md) para instalación avanzada
+- Lee [INSTALACION.md](INSTALARzada
 - Consulta [FAQ.md](FAQ.md) para preguntas frecuentes
 - Ver [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) para entender los datos
 

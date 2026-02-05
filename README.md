@@ -4,7 +4,7 @@ Una aplicación multiplataforma moderna para gestionar la reproducción automát
 
 ## 🎯 Características Principales
 
-- ✅ **Multiplataforma**: Windows, macOS y Linux
+- ✅ **Multiplataforma**: macOS y Linux
 - ✅ **Interfaz Web Responsiva**: Control total desde el navegador
 - ✅ **Programación Flexible**: Por hora, fecha específica o días de la semana
 - ✅ **Detección de Conflictos**: Identifica solapamientos considerando duración
@@ -57,8 +57,6 @@ MusicBell/
 
 ### Instalación y Ejecución
 
-**macOS/Linux:**
-
 ```bash
 # 1. Instalar dependencias
 pip install -r backend/requirements.txt
@@ -69,21 +67,6 @@ mkdir -p canciones
 # 3. Ejecutar la aplicación
 python backend/app.py
 ```
-
-**Windows:**
-
-```powershell
-# Opción 1: Doble clic en los archivos (Más fácil)
-1. Ejecuta: install_requirements.bat
-2. Luego: run.bat
-
-# Opción 2: Línea de comandos
-pip install -r backend\requirements.txt
-mkdir canciones
-python backend\app.py
-```
-
-👉 **[Guía completa de instalación Windows →](INSTALACION_WINDOWS_NUEVA.md)**
 
 ### Acceso a la Interfaz
 
@@ -247,15 +230,15 @@ Para desarrolladores, ver:
 
 Toda la documentación está organizada en la carpeta `docs/`:
 
-| Documento                                                | Propósito                             |
-| -------------------------------------------------------- | ------------------------------------- |
-| **[docs/README.md](docs/README.md)**                     | Índice y acceso rápido                |
-| **[docs/GUIA_RAPIDA.md](docs/GUIA_RAPIDA.md)**           | Empezar en 60 segundos                |
-| **[docs/INSTALACION.md](docs/INSTALACION.md)**           | Instalación en Windows, macOS y Linux |
-| **[docs/DESARROLLO.md](docs/DESARROLLO.md)**             | Guía para desarrolladores             |
-| **[docs/ESTRUCTURA_DATOS.md](docs/ESTRUCTURA_DATOS.md)** | Formato JSON y estructura             |
-| **[docs/FAQ.md](docs/FAQ.md)**                           | Preguntas frecuentes                  |
-| **[docs/CHANGELOG.md](docs/CHANGELOG.md)**               | Historial de cambios                  |
+| Documento                                                | Propósito                    |
+| -------------------------------------------------------- | ---------------------------- |
+| **[docs/README.md](docs/README.md)**                     | Índice y acceso rápido       |
+| **[docs/GUIA_RAPIDA.md](docs/GUIA_RAPIDA.md)**           | Empezar en 60 segundos       |
+| **[docs/INSTALACION.md](docs/INSTALACION.md)**           | Instalación en macOS y Linux |
+| **[docs/DESARROLLO.md](docs/DESARROLLO.md)**             | Guía para desarrolladores    |
+| **[docs/ESTRUCTURA_DATOS.md](docs/ESTRUCTURA_DATOS.md)** | Formato JSON y estructura    |
+| **[docs/FAQ.md](docs/FAQ.md)**                           | Preguntas frecuentes         |
+| **[docs/CHANGELOG.md](docs/CHANGELOG.md)**               | Historial de cambios         |
 
 👉 **[Ver toda la documentación →](docs/README.md)**
 
@@ -326,8 +309,6 @@ cd ..
 
 ## Uso
 
-### Iniciar en macOS/Linux
-
 ```bash
 # Desde la raíz del proyecto
 cd backend
@@ -335,15 +316,6 @@ python app.py
 ```
 
 Luego abre tu navegador en: `http://localhost:5000`
-
-### Iniciar en Windows
-
-```bash
-cd backend
-python app.py
-```
-
-O haz doble clic en `start_windows.bat` (próximamente disponible)
 
 ## Uso de la Aplicación
 
@@ -444,7 +416,6 @@ Si la computadora se apaga o reinicia:
 
 ### No se reproduce sonido
 
-**Windows**: Asegúrate de que `winsound` esté disponible
 **macOS**: Verifica permisos de audio, ejecuta: `sudo chmod +x backend/music_player.py`
 **Linux**: Instala ffplay: `sudo apt-get install ffmpeg`
 
@@ -455,7 +426,6 @@ Si la computadora se apaga o reinicia:
 
 ## Cambios Pendientes/Mejoras
 
-- [ ] Interfaz de edición modal mejorada
 - [ ] Soporte para múltiples volúmenes
 - [ ] Previsualización de audio
 - [ ] Exportar/importar configuración

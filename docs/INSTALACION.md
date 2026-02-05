@@ -9,18 +9,9 @@
 
 ## Instalación Rápida
 
-### macOS y Linux
-
 ```bash
 cd MusicBell
 bash start.sh
-```
-
-### Windows
-
-```bash
-cd MusicBell
-start_windows.bat
 ```
 
 Luego abre: **http://localhost:5000**
@@ -53,10 +44,6 @@ cd ..
 ### 3. Agregar canciones
 
 Copia tus archivos MP3 a la carpeta `canciones/`
-
-### 4. Ejecutar la aplicación
-
-#### Opción A: Script de inicio (Recomendado)
 
 ```bash
 # macOS/Linux

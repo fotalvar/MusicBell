@@ -1,29 +1,29 @@
-# Instalar MusicBell como App en Windows
+# Instalar MusicBell como App (PWA)
 
-MusicBell ahora es una **Progressive Web App (PWA)**, lo que permite instalarla como aplicación nativa en Windows a través de Chrome.
+MusicBell es una **Progressive Web App (PWA)**, lo que permite instalarla como aplicación nativa en macOS, Linux y navegadores web.
 
 ## ✅ Requisitos
 
-- Google Chrome (versión 88+) en Windows
+- Navegador moderno (Chrome, Firefox, Safari, Edge)
 - MusicBell ejecutándose en `http://localhost:5000`
 
-## 📱 Instalación en Chrome
+## 📱 Instalación en el Navegador
 
-### Método 1: Desde el ícono de instalación
+### Método 1: Desde el ícono de instalación (Recomendado)
 
-1. **Abre MusicBell en Chrome**: `http://localhost:5000`
+1. **Abre MusicBell en tu navegador**: `http://localhost:5000`
 2. **Busca el ícono de instalación** en la barra de direcciones:
    - Lado derecho de la barra de direcciones
-   - Es un **ícono pequeño de descarga**
+   - Es un **ícono pequeño de descarga/instalación**
 3. **Haz clic** en el ícono
 4. **Selecciona "Instalar"** en el popup
-5. ¡Listo! La app aparecerá en tu menú de inicio y en el escritorio
+5. ¡Listo! La app aparecerá en tu menú o dock
 
 ### Método 2: Desde el menú
 
-1. **Abre Chrome**
+1. **Abre el navegador**
 2. **Accede a**: `http://localhost:5000`
-3. **Haz clic en el menú** (⋮) en la esquina superior derecha
+3. **Haz clic en el menú** (⋮ o ≡) en la esquina superior derecha
 4. **Selecciona**: `Instalar MusicBell` (si está disponible)
 5. **Confirma la instalación**
 
@@ -31,8 +31,8 @@ MusicBell ahora es una **Progressive Web App (PWA)**, lo que permite instalarla 
 
 Si el método 1 no funciona:
 
-1. **Abre MusicBell en Chrome**: `http://localhost:5000`
-2. **Menú de Chrome** (⋮) → **Más herramientas** → **Crear acceso directo**
+1. **Abre MusicBell en tu navegador**: `http://localhost:5000`
+2. **Menú** → **Más herramientas** → **Crear acceso directo**
 3. Marca: "Abrir como ventana" (importante)
 4. **Crear**
 
@@ -42,7 +42,7 @@ Si el método 1 no funciona:
 
 ✅ **Icono personalizado** - Cara sonriente con fondo indigo  
 ✅ **Sin barras del navegador** - Se ve como una aplicación nativa  
-✅ **Acceso directo** - En Inicio y Escritorio  
+✅ **Acceso directo** - En el menú de aplicaciones o dock  
 ✅ **Modo offline mejorado** - Funciona sin conexión parcialmente  
 ✅ **Sincronización** - Se sincroniza cuando vuelve la conexión  
 ✅ **Notificaciones** - Futura funcionalidad
@@ -59,7 +59,7 @@ Si el método 1 no funciona:
 
 ### Accesos rápidos
 
-Desde el menú de la app (botón derecho):
+Desde el menú de la app:
 
 - **Reproducir canción** - Acceso directo a la pestaña de reproducción
 - **Ver programación** - Acceso rápido a la playlist
@@ -82,14 +82,23 @@ Los siguientes archivos configuran la app:
 
 ---
 
-## 🖥️ En Windows
+## 🍎 En macOS
 
 Una vez instalada:
 
-1. **Ícono en el Escritorio** - Abre la app directamente
-2. **En el Menú de Inicio** - Busca "MusicBell"
-3. **Anclar en la Barra de Tareas** - Click derecho → Anclar a barra de tareas
-4. **Gestos táctiles** - Si tienes pantalla táctil
+1. **Aparecerá en el Dock** - Puedes anclarla permanentemente
+2. **Abierta desde Spotlight** - Busca "MusicBell" en Spotlight
+3. **Acceso rápido** - Está con tus aplicaciones normales
+
+---
+
+## 🐧 En Linux
+
+Una vez instalada:
+
+1. **Aparecerá en el menú de aplicaciones**
+2. **Acceso directo en el escritorio** (opcional)
+3. **Se integra con el gestor de ventanas**
 
 ---
 
@@ -138,4 +147,4 @@ Una vez instalada:
 
 **Tecnología**: Progressive Web App (PWA)  
 **Navegadores soportados**: Chrome 88+, Edge 88+, Opera 74+  
-**Plataformas**: Windows 10+, macOS, Linux
+**Plataformas**: macOS, Linux

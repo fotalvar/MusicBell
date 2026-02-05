@@ -9,6 +9,7 @@
 **Respuesta:** Python 3.8 o superior.
 
 Verifica tu versión:
+
 ```bash
 python3 --version
 ```
@@ -21,7 +22,6 @@ Descárgalo desde: https://www.python.org/downloads/
 
 **Respuesta:** En cualquier carpeta. Recomendamos:
 
-- **Windows:** `C:\MusicBell`
 - **macOS:** `~/Desktop/MusicBell` o `/Applications/MusicBell`
 - **Linux:** `/home/usuario/MusicBell` o `/opt/musicbell`
 
@@ -32,6 +32,7 @@ Descárgalo desde: https://www.python.org/downloads/
 **Respuesta:** El script `start.sh` lo instala automáticamente.
 
 O instálalo manualmente:
+
 ```bash
 pip install -r backend/requirements.txt
 ```
@@ -40,10 +41,7 @@ pip install -r backend/requirements.txt
 
 ### ¿Necesito privilegios de administrador?
 
-**Respuesta:** 
-- **macOS/Linux:** No es necesario para ejecución normal
-- **Windows:** Para instalar como servicio, sí necesitas permisos de administrador
-- **Windows:** Para ejecutar normalmente, no es obligatorio
+**Respuesta:** No es necesario para ejecución normal.
 
 ---
 
@@ -51,7 +49,8 @@ pip install -r backend/requirements.txt
 
 ### ¿Cómo agrego archivos MP3?
 
-**Respuesta:** 
+**Respuesta:**
+
 1. Copia tus archivos `.mp3` a la carpeta `canciones/`
 2. Recarga la página web
 3. Los verás en el selector de "Archivo MP3"
@@ -63,6 +62,7 @@ pip install -r backend/requirements.txt
 **Respuesta:** Actualmente solo MP3.
 
 Futuras versiones soportarán:
+
 - FLAC
 - WAV
 - OGG
@@ -74,6 +74,7 @@ Futuras versiones soportarán:
 **Respuesta:** Actualmente no. Pero puedes crear duplicados con diferentes horas.
 
 Ejemplo:
+
 - Canción 1: 08:00
 - Canción 2: 12:00
 - Canción 3: 15:30
@@ -118,13 +119,10 @@ Nota: MusicBell se ejecuta solo cuando está abierta.
 
 ### ¿Puedo cambiar el volumen?
 
-**Respuesta:** Actualmente no desde la interfaz. Pero puedes:
+**Respuesta:** Actualmente no desde la interfaz. Pero puedes usar tu sistema operativo:
 
-1. **Windows:** Panel de Control → Sonido
-2. **macOS:** System Preferences → Sound
-3. **Linux:** pavucontrol
-
-Futura mejora: Control de volumen en la interfaz.
+- **macOS:** System Preferences → Sound
+- **Linux:** pavucontrol
 
 ---
 
@@ -171,14 +169,16 @@ Solo abre el navegador para cambiar la programación.
 **Posibles causas:**
 
 1. **Puerto 5000 en uso**
+
    ```bash
    # Matar proceso
    lsof -ti:5000 | xargs kill -9
-   
+
    # O cambiar puerto en app.py
    ```
 
 2. **Flask no instalado**
+
    ```bash
    pip install Flask Flask-CORS
    ```
@@ -315,19 +315,6 @@ def get_canciones():
 
 ## Deployment y Producción
 
-### ¿Cómo instalo como servicio en Windows?
-
-**Respuesta:** Ver [INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md)
-
-Resumen:
-```cmd
-pip install pywin32
-python backend/install_service.py install
-python backend/install_service.py start
-```
-
----
-
 ### ¿Cómo uso Docker?
 
 **Respuesta:** Crea `Dockerfile`:
@@ -341,6 +328,7 @@ CMD ["python", "backend/app.py"]
 ```
 
 Ejecuta:
+
 ```bash
 docker build -t musicbell .
 docker run -p 5000:5000 -v $(pwd)/canciones:/app/canciones musicbell
@@ -350,7 +338,7 @@ docker run -p 5000:5000 -v $(pwd)/canciones:/app/canciones musicbell
 
 ### ¿Cómo backupeo la configuración?
 
-**Respuesta:** 
+**Respuesta:**
 
 ```bash
 # Backup manual
@@ -372,8 +360,6 @@ cp config/canciones.json config/canciones.json.backup
 
 ```bash
 # Crear backup primero
-bash sync_to_windows.sh
-
 # Luego copia nuevos archivos
 cp -r new_version/* /Users/federicootalvares/Desktop/MusicBell/
 ```
@@ -412,9 +398,9 @@ curl -X DELETE http://localhost:5000/api/canciones/1
 
 ```javascript
 // Ejemplo en JavaScript
-fetch('http://localhost:5000/api/canciones')
-  .then(r => r.json())
-  .then(data => console.log(data))
+fetch("http://localhost:5000/api/canciones")
+  .then((r) => r.json())
+  .then((data) => console.log(data));
 ```
 
 Ver [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) para más detalles.
@@ -425,7 +411,7 @@ Ver [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) para más detalles.
 
 ### ¿Dónde reporto bugs?
 
-**Respuesta:** 
+**Respuesta:**
 
 1. GitHub Issues (si está en GitHub)
 2. Email: [tu-email]
@@ -435,7 +421,7 @@ Ver [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) para más detalles.
 
 ### ¿Puedo contribuir?
 
-**Respuesta:** ¡Claro! 
+**Respuesta:** ¡Claro!
 
 1. Fork el proyecto
 2. Crea rama (`git checkout -b feature/mi-mejora`)
@@ -451,8 +437,7 @@ Ver [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) para más detalles.
 
 - 📖 [README.md](README.md)
 - 🚀 [GUIA_RAPIDA.md](GUIA_RAPIDA.md)
-- 🧪 [PRUEBAS_MAC.md](PRUEBAS_MAC.md)
-- 🔧 [INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md)
+- 🔧 [INSTALACION.md](INSTALACION.md)
 - 📊 [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md)
 
 ---
@@ -464,6 +449,7 @@ Ver [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) para más detalles.
 **Respuesta:** Sí, para uso en escuelas es completamente seguro.
 
 Mejoras futuras de seguridad:
+
 - Autenticación
 - HTTPS
 - Rate limiting
@@ -475,6 +461,7 @@ Mejoras futuras de seguridad:
 **Respuesta:** Teóricamente ilimitado. Probado con 1000+ canciones.
 
 Limitaciones prácticas:
+
 - Espacio en disco
 - Interfaz (se puede lentificar con 10000+)
 
@@ -485,6 +472,7 @@ Limitaciones prácticas:
 **Respuesta:** ¡Sí! Funciona completamente offline.
 
 Los únicos requisitos:
+
 - Python instalado
 - Archivo MP3 en la carpeta
 - Acceso local (http://localhost:5000)
