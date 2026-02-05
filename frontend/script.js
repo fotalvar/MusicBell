@@ -647,7 +647,6 @@ async function reproducirCancion(nombreArchivo) {
     await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
       method: "POST",
     });
-    alert("Reproduciendo: " + nombreArchivo);
     await cargarEstado();
   } catch (error) {
     alert("Error reproduciendo: " + error.message);
@@ -656,11 +655,18 @@ async function reproducirCancion(nombreArchivo) {
 
 async function detenerCancion() {
   try {
+    // Detener el audio local
+    const audioPlayer = document.getElementById("audioPlayer");
+    if (audioPlayer) {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+    }
+
+    // Notificar al backend
     await fetchAPI(`${API_URL}/detener`, { method: "POST" });
-    alert("Reproducción detenida");
     await cargarEstado();
   } catch (error) {
-    alert("Error deteniendo: " + error.message);
+    console.error("Error deteniendo:", error);
   }
 }
 async function eliminarCancion(id) {
