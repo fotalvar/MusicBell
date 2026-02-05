@@ -126,17 +126,12 @@ class MusicScheduler:
                 try:
                     import winsound
                     
-                    def play_audio():
-                        try:
-                            winsound.PlaySound(song_path, winsound.SND_FILENAME)
-                        except Exception as e:
-                            logger.error(f"Error con winsound: {e}")
+                    # Reproducir de forma asincrónica para no bloquear
+                    # SND_FILENAME: es un archivo
+                    # SND_ASYNC: reproducir de forma asincrónica (no bloquea)
+                    winsound.PlaySound(song_path, winsound.SND_FILENAME | winsound.SND_ASYNC)
                     
-                    # Reproducir en un thread para no bloquear
-                    self.current_player_process = threading.Thread(target=play_audio, daemon=True)
-                    self.current_player_process.start()
-                    
-                    logger.info(f"✓ Reproduciendo (winsound): {song_path}")
+                    logger.info(f"Reproduciendo (winsound): {song_path}")
                     return True
                 except Exception as e:
                     logger.error(f"Error reproduciendo con winsound: {e}")
@@ -145,13 +140,13 @@ class MusicScheduler:
             # macOS: usar afplay
             elif system == 'Darwin':
                 self.current_player_process = subprocess.Popen(['afplay', song_path])
-                logger.info(f"✓ Reproduciendo (afplay): {song_path}")
+                logger.info(f"Reproduciendo (afplay): {song_path}")
                 return True
             
             # Linux: usar paplay
             elif system == 'Linux':
                 self.current_player_process = subprocess.Popen(['paplay', song_path])
-                logger.info(f"✓ Reproduciendo (paplay): {song_path}")
+                logger.info(f"Reproduciendo (paplay): {song_path}")
                 return True
             
             else:

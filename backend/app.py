@@ -56,7 +56,7 @@ def liberar_puerto_5000():
                                         capture_output=True,
                                         stderr=subprocess.DEVNULL
                                     )
-                                    logger.info(f"✓ Proceso {pid} en puerto {PORT} terminado")
+                                    logger.info(f"Proceso {pid} en puerto {PORT} terminado")
                                 except:
                                     pass
             except Exception as e:
@@ -79,7 +79,7 @@ def liberar_puerto_5000():
                             pid = line.split()[1]
                             try:
                                 os.kill(int(pid), 9)
-                                logger.info(f"✓ Proceso {pid} en puerto {PORT} terminado")
+                                logger.info(f"Proceso {pid} en puerto {PORT} terminado")
                             except:
                                 pass
             except Exception as e:
@@ -87,7 +87,7 @@ def liberar_puerto_5000():
         
         # Esperar un momento para asegurar que el puerto se libere
         time.sleep(1)
-        logger.info(f"✓ Puerto {PORT} liberado correctamente")
+        logger.info(f"Puerto {PORT} liberado correctamente")
         return True
         
     except Exception as e:
@@ -377,7 +377,7 @@ def init_scheduler():
 
 if __name__ == '__main__':
     # Liberar puerto 5000 antes de iniciar
-    logger.info("🔍 Verificando instancias anteriores...")
+    logger.info("Verificando instancias anteriores...")
     liberar_puerto_5000()
     
     (project_root / 'canciones').mkdir(parents=True, exist_ok=True)
