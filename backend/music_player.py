@@ -109,7 +109,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción usando pygame (funciona en todos los OS con MP3)"""
+        """Reproduce una canción usando playsound (funciona en Windows, macOS y Linux con MP3)"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -121,70 +121,39 @@ class MusicScheduler:
             system = platform.system()
             logger.info(f"Intentando reproducir: {song_path} en {system}")
             
-            # Inicializar pygame mixer para reproducción de audio
-            import pygame
+            from playsound import playsound
             
-            # Inicializar pygame (solo si no está ya inicializado)
-            if not pygame.mixer.get_init():
-                pygame.mixer.init()
-                logger.info("Pygame mixer inicializado")
-            
-            # Cargar y reproducir la canción
-            pygame.mixer.music.load(song_path)
-            pygame.mixer.music.play()
-            
-            # Obtener duración de la canción
-            sound = pygame.mixer.Sound(song_path)
-            duration = sound.get_length()
-            
-            # Crear un thread para monitorear la reproducción
+            # Crear un thread para reproducir la canción sin bloquear
             def play_thread():
                 try:
-                    # Esperar mientras se reproduce
-                    while pygame.mixer.music.get_busy():
-                        time.sleep(0.1)
+                    logger.info(f"Iniciando reproducción: {song_path}")
+                    playsound(song_path)
                     logger.info(f"Reproducción finalizada: {song_path}")
                 except Exception as e:
-                    logger.error(f"Error en thread de reproducción: {e}")
+                    logger.error(f"Error en reproducción: {e}")
             
             # Iniciar el thread en background
             player_thread = threading.Thread(target=play_thread, daemon=True)
             player_thread.start()
             self.current_player_process = player_thread
             
-            logger.info(f"Reproduciendo (pygame): {song_path} (duración: {duration:.2f}s)")
+            logger.info(f"Reproduciendo (playsound): {song_path}")
             return True
                 
+        except ImportError:
+            logger.error("playsound no está instalado. Instala con: pip install playsound==1.2.2")
+            return False
         except Exception as e:
             logger.error(f"Error reproduciendo canción: {e}")
-            # Intentar fallback con métodos del sistema operativo
-            try:
-                system = platform.system()
-                if system == 'Darwin':  # macOS
-                    self.current_player_process = subprocess.Popen(['afplay', song_path])
-                    logger.info(f"Fallback a afplay: {song_path}")
-                    return True
-                elif system == 'Linux':  # Linux
-                    self.current_player_process = subprocess.Popen(['paplay', song_path])
-                    logger.info(f"Fallback a paplay: {song_path}")
-                    return True
-            except Exception as e2:
-                logger.error(f"Error en fallback: {e2}")
             return False
     
     def stop_current_song(self):
         """Detiene la canción que está sonando actualmente"""
         try:
-            # Detener pygame si está reproduciendo
-            import pygame
-            if pygame.mixer.get_init():
-                if pygame.mixer.music.get_busy():
-                    pygame.mixer.music.stop()
-                    logger.info("Música detenida (pygame)")
-            
-            # Procesos (para fallback en macOS/Linux)
+            # playsound ejecuta en un thread, así que simplemente limpiamos la referencia
+            # El thread terminará cuando la canción termine o cuando el sistema se apague
             if self.current_player_process:
-                # Si es un proceso (subprocess)
+                # Si es un proceso (subprocess para fallback en macOS/Linux)
                 if isinstance(self.current_player_process, subprocess.Popen):
                     if self.current_player_process.poll() is None:
                         try:
@@ -196,7 +165,8 @@ class MusicScheduler:
                         except Exception as e:
                             logger.warning(f"Error deteniendo proceso: {e}")
                 
-                # Si es un thread (no hace falta hacer nada, es daemon)
+                # Si es un thread (con playsound, no hay forma de detenerlo de forma inmediata)
+                # El thread terminará cuando playsound termine
                 self.current_player_process = None
             
             logger.info("Canción detenida")

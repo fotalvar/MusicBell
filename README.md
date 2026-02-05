@@ -19,35 +19,32 @@ Una aplicación multiplataforma moderna para gestionar la reproducción automát
 ```
 MusicBell/
 ├── backend/
-│   ├── app.py              # API REST (Flask) - Rutas principales
-│   ├── music_player.py     # Motor de reproducción - Scheduler
-│   ├── utils.py            # Funciones auxiliares compartidas
+│   ├── app.py              # API REST (Flask)
+│   ├── music_player.py     # Motor de reproducción
+│   ├── utils.py            # Funciones auxiliares
 │   ├── cli.py              # Interfaz de línea de comandos
-│   ├── requirements.txt     # Dependencias Python
-│   └── venv/               # Entorno virtual (si aplica)
+│   └── requirements.txt     # Dependencias Python
 │
 ├── frontend/
 │   ├── index.html          # Interfaz web responsiva
-│   ├── script.js           # Lógica JavaScript optimizado
-│   └── style.css           # Estilos CSS (limpio y consolidado)
+│   ├── script.js           # Lógica JavaScript
+│   └── style.css           # Estilos CSS
 │
 ├── config/
-│   └── canciones.json      # Configuración de canciones (generado)
+│   └── canciones.json      # Configuración (generado)
 │
 ├── canciones/              # Carpeta para archivos MP3
+├── logs/                   # Logs de ejecución
+├── docs/                   # 📚 Documentación completa
+│   ├── README.md           # Índice de documentación
+│   ├── GUIA_RAPIDA.md      # Inicio rápido
+│   ├── INSTALACION.md      # Instalación en cualquier SO
+│   ├── DESARROLLO.md       # Guía para desarrolladores
+│   ├── ESTRUCTURA_DATOS.md # Formato JSON
+│   ├── FAQ.md              # Preguntas frecuentes
+│   └── CHANGELOG.md        # Historial de cambios
 │
-├── logs/
-│   └── musicbell.log       # Logs de ejecución
-│
-├── README.md               # Este archivo
-├── GUIA_RAPIDA.md          # Guía de inicio rápido
-├── INDEX.md                # Índice de documentación
-├── FAQ.md                  # Preguntas frecuentes
-├── ESTRUCTURA_DATOS.md     # Formato de configuración
-├── DESARROLLO.md           # Guía para desarrolladores
-├── OPTIMIZATION_SUMMARY.md # Resumen de optimizaciones
-├── INSTALACION_WINDOWS.md  # Guía de instalación Windows
-└── PALETA_COLORES.md       # Paleta de colores UI
+└── README.md               # Este archivo
 ```
 
 ## 🚀 Inicio Rápido (60 segundos)
@@ -183,7 +180,7 @@ python backend\app.py
 
 ## 🔌 API REST
 
-Documentación completa en [DESARROLLO.md](DESARROLLO.md)
+Documentación completa en [docs/DESARROLLO.md](docs/DESARROLLO.md)
 
 ### Endpoints Principales
 
@@ -246,18 +243,21 @@ Para desarrolladores, ver:
 - [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) - Formato de configuración
 - [OPTIMIZATION_SUMMARY.md](OPTIMIZATION_SUMMARY.md) - Detalles de optimizaciones
 
-## 📝 Documentación
+## 📝 Documentación Completa
 
-| Documento                                              | Propósito                 |
-| ------------------------------------------------------ | ------------------------- |
-| **[GUIA_RAPIDA.md](GUIA_RAPIDA.md)**                   | Inicio en 60 segundos     |
-| **[INDEX.md](INDEX.md)**                               | Índice completo de docs   |
-| **[FAQ.md](FAQ.md)**                                   | Preguntas frecuentes      |
-| **[INSTALACION_WINDOWS.md](INSTALACION_WINDOWS.md)**   | Instalación Windows       |
-| **[ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md)**         | Formato JSON              |
-| **[DESARROLLO.md](DESARROLLO.md)**                     | Arquitectura técnica      |
-| **[OPTIMIZATION_SUMMARY.md](OPTIMIZATION_SUMMARY.md)** | Optimizaciones realizadas |
-| **[PALETA_COLORES.md](PALETA_COLORES.md)**             | Colores de UI             |
+Toda la documentación está organizada en la carpeta `docs/`:
+
+| Documento                                                | Propósito                             |
+| -------------------------------------------------------- | ------------------------------------- |
+| **[docs/README.md](docs/README.md)**                     | Índice y acceso rápido                |
+| **[docs/GUIA_RAPIDA.md](docs/GUIA_RAPIDA.md)**           | Empezar en 60 segundos                |
+| **[docs/INSTALACION.md](docs/INSTALACION.md)**           | Instalación en Windows, macOS y Linux |
+| **[docs/DESARROLLO.md](docs/DESARROLLO.md)**             | Guía para desarrolladores             |
+| **[docs/ESTRUCTURA_DATOS.md](docs/ESTRUCTURA_DATOS.md)** | Formato JSON y estructura             |
+| **[docs/FAQ.md](docs/FAQ.md)**                           | Preguntas frecuentes                  |
+| **[docs/CHANGELOG.md](docs/CHANGELOG.md)**               | Historial de cambios                  |
+
+👉 **[Ver toda la documentación →](docs/README.md)**
 
 ## 🔒 Consideraciones de Seguridad
 
