@@ -41,8 +41,9 @@ class MusicScheduler:
         self.songs_dir = str(project_root / songs_dir)
         self.config = None
         self.current_player = None
-        self.current_player_process = None  # Track del reproductor
+        self.current_player_process = None  # Reproductor VLC
         self.vlc_instance = None  # Instancia de VLC
+        self.vlc_media_list = None  # Lista de media de VLC
         self.running = True
         
         # Crear directorios si no existen
@@ -110,7 +111,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una canción usando VLC sin interfaz gráfica"""
+        """Reproduce una canción usando VLC con manejo robusto de errores"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -119,40 +120,90 @@ class MusicScheduler:
         self.stop_current_song()
         
         try:
-            logger.info(f"Intentando reproducir: {song_path}")
+            logger.info(f"=== INICIANDO REPRODUCCIÓN ===")
+            logger.info(f"Archivo: {song_path}")
+            logger.info(f"Tamaño: {os.path.getsize(song_path)} bytes")
+            logger.info(f"Existe: {os.path.exists(song_path)}")
+            logger.info(f"Lectura: {os.access(song_path, os.R_OK)}")
             
-            import vlc
+            # Verificar que el archivo es válido
+            if os.path.getsize(song_path) == 0:
+                logger.error("El archivo está vacío")
+                return False
             
-            # Crear instancia de VLC
-            # vlc_instance: instancia de VLC sin interfaz
-            vlc_instance = vlc.Instance('--no-xlib')  # Sin interfaz gráfica
+            if os.path.getsize(song_path) < 5000:  # Menos de 5KB
+                logger.error("El archivo es muy pequeño, probablemente corrupto")
+                return False
             
-            # Crear media
-            media = vlc_instance.media_list_new()
-            media_item = vlc_instance.media_new(song_path)
-            media.add_media(media_item)
+            # Importar VLC
+            try:
+                import vlc
+            except ImportError:
+                logger.error("❌ python-vlc NO ESTÁ INSTALADO")
+                logger.error("Instala con: python -m pip install python-vlc==3.0.20123")
+                return False
             
-            # Crear list player (reproductor de listas)
-            list_player = vlc_instance.list_player_new()
-            list_player.set_media_list(media)
+            logger.info("✅ VLC importado correctamente")
             
-            # Guardar la instancia para poder detenerla después
-            self.current_player_process = list_player
-            self.vlc_instance = vlc_instance
+            # Crear instancia VLC
+            try:
+                logger.info("Creando instancia VLC...")
+                vlc_instance = vlc.Instance('--no-xlib', '--no-plugins-cache')
+                logger.info("✅ Instancia VLC creada")
+            except Exception as e:
+                logger.error(f"❌ Error creando instancia VLC: {e}")
+                return False
+            
+            # Crear media list
+            try:
+                logger.info("Creando media list...")
+                media_list = vlc_instance.media_list_new()
+                logger.info("✅ Media list creada")
+            except Exception as e:
+                logger.error(f"❌ Error creando media list: {e}")
+                return False
+            
+            # Crear media item
+            try:
+                logger.info(f"Creando media item para: {song_path}")
+                media = vlc_instance.media_new(song_path)
+                media_list.add_media(media)
+                logger.info("✅ Media item agregado")
+            except Exception as e:
+                logger.error(f"❌ Error creando media item: {e}")
+                return False
+            
+            # Crear reproductor
+            try:
+                logger.info("Creando reproductor...")
+                player = vlc_instance.list_player_new()
+                player.set_media_list(media_list)
+                logger.info("✅ Reproductor creado")
+            except Exception as e:
+                logger.error(f"❌ Error creando reproductor: {e}")
+                return False
             
             # Reproducir
-            list_player.play()
-            
-            logger.info(f"Reproduciendo (VLC): {song_path}")
-            return True
+            try:
+                logger.info("Iniciando reproducción...")
+                result = player.play()
+                logger.info(f"✅ Reproducción iniciada (resultado: {result})")
                 
-        except ImportError:
-            logger.error("python-vlc no está instalado. Instala con: pip install python-vlc==3.0.20123")
-            return False
+                # Guardar instancias
+                self.current_player_process = player
+                self.vlc_instance = vlc_instance
+                self.vlc_media_list = media_list
+                
+                logger.info(f"✅ REPRODUCCIÓN EXITOSA: {song_path}")
+                return True
+                
+            except Exception as e:
+                logger.error(f"❌ Error iniciando reproducción: {e}")
+                return False
+            
         except Exception as e:
-            logger.error(f"Error reproduciendo canción: {e}")
+            logger.error(f"❌ ERROR CRÍTICO EN REPRODUCCIÓN: {e}")
             import traceback
-            traceback.print_exc()
             logger.error(traceback.format_exc())
             return False
     
@@ -160,30 +211,43 @@ class MusicScheduler:
     def stop_current_song(self):
         """Detiene la canción que está sonando actualmente"""
         try:
-            # Si es un reproductor VLC
+            logger.info("Deteniendo reproducción...")
+            
+            # Detener reproductor VLC
             if self.current_player_process:
                 try:
-                    # VLC list_player
                     self.current_player_process.stop()
-                    logger.info("Música detenida (VLC)")
+                    logger.info("✅ VLC list_player detenido")
                 except Exception as e:
-                    logger.warning(f"Error deteniendo VLC: {e}")
+                    logger.warning(f"Error deteniendo player: {e}")
                 
                 self.current_player_process = None
             
-            # Liberar instancia de VLC
-            if hasattr(self, 'vlc_instance'):
+            # Liberar media list
+            if self.vlc_media_list:
+                try:
+                    self.vlc_media_list = None
+                    logger.info("✅ Media list liberada")
+                except Exception as e:
+                    logger.warning(f"Error liberando media_list: {e}")
+            
+            # Liberar instancia VLC
+            if self.vlc_instance:
                 try:
                     self.vlc_instance.release()
-                except:
-                    pass
+                    logger.info("✅ Instancia VLC liberada")
+                except Exception as e:
+                    logger.warning(f"Error liberando VLC: {e}")
+                
                 self.vlc_instance = None
             
-            logger.info("Canción detenida")
+            logger.info("✅ Reproducción detenida")
             return True
+            
         except Exception as e:
             logger.error(f"Error deteniendo canción: {e}")
             self.current_player_process = None
+            self.vlc_instance = None
             return False
     
     def check_conflicts(self, songs):
