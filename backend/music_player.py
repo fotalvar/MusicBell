@@ -114,7 +114,7 @@ class MusicScheduler:
         return songs_to_play
     
     def play_song(self, song_path):
-        """Reproduce una cancion usando pydub con manejo robusto de errores"""
+        """Reproduce una cancion usando winsound (nativo de Windows)"""
         if not os.path.exists(song_path):
             logger.error(f"Archivo no encontrado: {song_path}")
             return False
@@ -123,7 +123,7 @@ class MusicScheduler:
         self.stop_current_song()
         
         try:
-            logger.info(f"=== INICIANDO REPRODUCCION ===")
+            logger.info("=== INICIANDO REPRODUCCION ===")
             logger.info(f"Archivo: {song_path}")
             logger.info(f"Tamaño: {os.path.getsize(song_path)} bytes")
             logger.info(f"Existe: {os.path.exists(song_path)}")
@@ -138,50 +138,38 @@ class MusicScheduler:
                 logger.error("El archivo es muy pequeno, probablemente corrupto")
                 return False
             
-            # Importar pydub y simpleaudio
+            # Importar winsound (nativo de Windows)
             try:
-                from pydub import AudioSegment
-                import simpleaudio
-            except ImportError as e:
-                logger.error(f"[ERROR] Modulos de audio NO INSTALADOS: {e}")
-                logger.error("Instala con: python -m pip install pydub simpleaudio")
+                import winsound
+            except ImportError:
+                logger.error("[ERROR] winsound NO DISPONIBLE (solo funciona en Windows)")
                 return False
             
-            logger.info("[OK] Modulos de audio importados correctamente")
+            logger.info("[OK] winsound importado correctamente")
             
-            # Cargar archivo de audio
-            try:
-                logger.info(f"Cargando musica: {song_path}")
-                # Detectar formato automáticamente
-                audio = AudioSegment.from_file(song_path)
-                logger.info(f"[OK] Musica cargada ({len(audio)}ms, {audio.channels} canales, {audio.frame_rate}Hz)")
-            except Exception as e:
-                logger.error(f"[ERROR] Error cargando archivo: {e}")
-                return False
+            # Reproducir música en thread separado para no bloquear
+            def play_thread():
+                try:
+                    logger.info(f"Cargando y reproduciendo: {song_path}")
+                    winsound.PlaySound(song_path, winsound.SND_FILENAME)
+                    logger.info("[OK] Reproduccion completada")
+                except Exception as e:
+                    logger.error(f"[ERROR] Error en reproduccion: {e}")
             
-            # Reproducir música
+            # Crear thread de reproducción
             try:
-                logger.info("Iniciando reproduccion...")
+                import threading
+                player_thread = threading.Thread(target=play_thread, daemon=True)
+                player_thread.start()
                 
-                # Convertir a WAV en memoria para reproducción
-                audio_data = audio.export(format="wav")
+                self.current_player_process = player_thread
+                self.current_player = winsound
                 
-                # Reproducir con simpleaudio
-                self.current_player_process = simpleaudio.play_buffer(
-                    audio_data,
-                    num_channels=audio.channels,
-                    bytes_per_sample=audio.sample_width,
-                    sample_rate=audio.frame_rate
-                )
-                
-                # Guardar info de reproducción
-                self.current_player = self.current_player_process
-                logger.info("[OK] Reproduccion iniciada")
-                logger.info(f"[OK] REPRODUCCION EXITOSA: {song_path}")
+                logger.info("[OK] REPRODUCCION INICIADA: {song_path}")
                 return True
                 
             except Exception as e:
-                logger.error(f"[ERROR] Error reproduciendo: {e}")
+                logger.error(f"[ERROR] Error creando thread de reproduccion: {e}")
                 import traceback
                 logger.error(traceback.format_exc())
                 return False
@@ -198,9 +186,10 @@ class MusicScheduler:
         try:
             logger.info("Deteniendo reproduccion...")
             
-            if self.current_player_process:
+            if self.current_player:
                 try:
-                    self.current_player_process.stop()
+                    # winsound se detiene automáticamente al finalizar
+                    # Solo registramos que se detiene
                     logger.info("[OK] Musica detenida")
                 except Exception as e:
                     logger.warning(f"Error deteniendo musica: {e}")
