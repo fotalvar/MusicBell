@@ -38,7 +38,7 @@ MusicBell/
 ├── docs/                   # 📚 Documentación completa
 │   ├── README.md           # Índice de documentación
 │   ├── GUIA_RAPIDA.md      # Inicio rápido
-│   ├── INSTALACION.md      # Instalación en cualquier SO
+│   ├── INSTALACION.md      # Instalación en macOS y Linux
 │   ├── DESARROLLO.md       # Guía para desarrolladores
 │   ├── ESTRUCTURA_DATOS.md # Formato JSON
 │   ├── FAQ.md              # Preguntas frecuentes

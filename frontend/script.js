@@ -622,7 +622,7 @@ async function agregarCancion(e) {
 async function reproducirCancion(nombreArchivo) {
   try {
     // Enviar orden de reproducción al backend
-    // El backend reproducirá la canción localmente en el servidor Windows
+    // El backend reproducirá la canción localmente en el servidor
     const response = await fetchAPI(`${API_URL}/reproducir/${nombreArchivo}`, {
       method: "POST",
     });
@@ -641,7 +641,7 @@ async function reproducirCancion(nombreArchivo) {
 async function detenerCancion() {
   try {
     // Enviar orden de parada al backend
-    // El backend detendrá la reproducción en el servidor Windows
+    // El backend detendrá la reproducción en el servidor
     const response = await fetchAPI(`${API_URL}/detener`, { method: "POST" });
 
     console.log("Orden de parada enviada al backend:", response);

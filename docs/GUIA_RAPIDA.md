@@ -88,7 +88,7 @@ En la pestaña **Reproducción**, puedes reproducir cualquier canción al instan
 
 ## Próximos Pasos
 
-- Lee [INSTALACION.md](INSTALARzada
+- Lee [INSTALACION.md](INSTALACION.md) para instalación detallada
 - Consulta [FAQ.md](FAQ.md) para preguntas frecuentes
 - Ver [ESTRUCTURA_DATOS.md](ESTRUCTURA_DATOS.md) para entender los datos
 

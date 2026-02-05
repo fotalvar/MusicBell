@@ -166,7 +166,7 @@ curl -X POST http://localhost:5000/api/detener
 1. **Backend Python**: Portabilidad y facilidad
 2. **Frontend web**: Accesible desde cualquier dispositivo
 3. **JSON para datos**: Simple, sin base de datos
-4. **playsound para audio**: Compatible sin compiladores
+4. **VLC para audio**: Motor robusto y multiplataforma
 5. **Threads para reproducción**: No bloquea interfaz
 
 ---

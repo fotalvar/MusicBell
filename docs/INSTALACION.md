@@ -35,22 +35,16 @@ pip install -r requirements.txt
 cd ..
 ```
 
-**Nota Windows**: Si `playsound` falla durante la instalación, asegúrate de tener:
-
-- Python 3.8+
-- Acceso a internet
-- Ejecutar como administrador si es necesario
-
 ### 3. Agregar canciones
 
 Copia tus archivos MP3 a la carpeta `canciones/`
 
-```bash
-# macOS/Linux
-bash start.sh
+### 4. Ejecutar la aplicación
 
-# Windows
-start_windows.bat
+#### Opción A: Script de inicio (Recomendado)
+
+```bash
+bash start.sh
 ```
 
 #### Opción B: Comando directo
@@ -59,59 +53,104 @@ start_windows.bat
 python backend/app.py
 ```
 
-#### Opción C: Desde Python
-
-```python
-cd backend
-python app.py
-```
-
 ### 5. Acceder a la interfaz
 
 Abre tu navegador en: **http://localhost:5000**
 
 ---
 
-## Instalación como Servicio de Windows
+## Instalación como Servicio en Linux
 
-Para que MusicBell inicie automáticamente con Windows:
+Para que MusicBell inicie automáticamente:
 
-### Opción 1: Programador de Tareas (Recomendado)
+### Usando systemd (Recomendado)
 
-1. Abre "Programador de tareas"
-2. Crear nueva tarea:
-   - Nombre: `MusicBell`
-   - Marcar "Ejecutar con los privilegios más altos"
-3. Desencadenador: "Al iniciar"
-4. Acción:
-   - Programa: `C:\Python\python.exe` (tu Python)
-   - Argumentos: `C:\MusicBell\backend\app.py`
-   - Directorio: `C:\MusicBell`
-5. Guardar
+1. Crea un archivo `/etc/systemd/system/musicbell.service`:
 
-### Opción 2: Servicio de Windows (Avanzado)
+```ini
+[Unit]
+Description=MusicBell - Automatic Music Player
+After=network.target
 
-Requiere `pywin32`:
+[Service]
+Type=simple
+User=tu_usuario
+WorkingDirectory=/home/tu_usuario/MusicBell
+ExecStart=/usr/bin/python3 /home/tu_usuario/MusicBell/backend/app.py
+Restart=on-failure
+RestartSec=10
 
-```bash
-pip install pywin32
-python -m pywin32_postinstall -install
+[Install]
+WantedBy=multi-user.target
 ```
 
-Luego crear un servicio personalizado (ver documentación de `pywin32`).
+2. Habilita el servicio:
+
+```bash
+sudo systemctl enable musicbell
+sudo systemctl start musicbell
+```
+
+3. Verifica el estado:
+
+```bash
+sudo systemctl status musicbell
+```
+
+---
+
+## Instalación como Servicio en macOS
+
+Para que MusicBell inicie automáticamente:
+
+### Usando LaunchAgent
+
+1. Crea `~/Library/LaunchAgents/com.musicbell.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.musicbell</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>/Users/tu_usuario/MusicBell/backend/app.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>/Users/tu_usuario/MusicBell</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+</dict>
+</plist>
+```
+
+2. Carga el servicio:
+
+```bash
+launchctl load ~/Library/LaunchAgents/com.musicbell.plist
+launchctl start com.musicbell
+```
 
 ---
 
 ## Acceso Remoto desde la Red
 
 1. Obtén la IP del servidor:
-   - **Windows**: `ipconfig` → IPv4
-   - **macOS/Linux**: `ifconfig` → inet
 
-2. Desde otro dispositivo:
-   ```
-   http://192.168.1.100:5000
-   ```
+```bash
+ifconfig | grep inet
+```
+
+2. Desde otro dispositivo en la red local:
+
+```
+http://192.168.1.100:5000
+```
 
 ---
 
@@ -119,39 +158,30 @@ Luego crear un servicio personalizado (ver documentación de `pywin32`).
 
 ### No se escucha sonido
 
-- Verifica volumen de Windows (no en silencio)
+- Verifica volumen del sistema (no en silencio)
 - Revisa logs: `logs/musicbell.log`
 - Comprueba que los MP3 existen en `canciones/`
-- Prueba reproducir un MP3 directamente en Windows
 
 ### Puerto 5000 en uso
 
 ```bash
-# Edita backend/app.py
-# Cambiar: app.run(host='0.0.0.0', port=8080, debug=False)
+lsof -i :5000
+# Cambia a otro puerto en backend/app.py
 ```
 
-### Error: playsound no se instala
-
-- Ejecuta como administrador en Windows
-- Intenta: `python -m pip install --upgrade pip`
-- Luego: `python -m pip install playsound==1.2.2`
-
-### Error de permisos en macOS/Linux
+### Error: python-vlc no se instala
 
 ```bash
+# Instala VLC Media Player primero desde videolan.org
+python -m pip install --upgrade pip
+python -m pip install python-vlc==3.0.20123
+```
+
+### Error de permisos
+
+```bash
+chmod -R 755 canciones/
 chmod +x start.sh
-bash start.sh
-```
-
-### Error: "Port already in use"
-
-```bash
-# Busca qué proceso está usando el puerto 5000
-lsof -i :5000  # macOS/Linux
-netstat -ano | findstr :5000  # Windows
-
-# Detén el proceso o cambia de puerto
 ```
 
 ---
@@ -160,14 +190,11 @@ netstat -ano | findstr :5000  # Windows
 
 ```bash
 # Verifica Python
-python --version
+python3 --version
 
 # Verifica dependencias
 cd backend
-python -c "import flask; import flask_cors; print('Dependencias OK')"
-
-# Verifica reproducción de audio
-python -c "from playsound import playsound; print('Audio OK')"
+python3 -c "import flask; import flask_cors; import vlc; print('✓ OK')"
 ```
 
 ---
@@ -183,8 +210,8 @@ pip install --upgrade -r requirements.txt
 
 ## Desinstalación
 
-Simplemente elimina la carpeta `MusicBell`. No modifica el registro ni archivos del sistema.
+Simplemente elimina la carpeta `MusicBell`.
 
 ---
 
-**Nota**: Para producción, se recomienda usar la Opción 1 (Programador de Tareas) en Windows, ya que es más confiable y no requiere dependencias adicionales.
+**Nota**: Para producción, se recomienda usar systemd (Linux) o LaunchAgent (macOS).

@@ -95,7 +95,7 @@ pip install -r requirements.txt
 1. Ejecuta `diagnostico_audio.py`
 2. Verifica que el volumen NO está en silencio
 3. Verifica que los altavoces están conectados
-4. Reinicia Windows
+4. Reinicia tu sistema
 
 ---
 
