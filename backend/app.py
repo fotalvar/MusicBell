@@ -180,6 +180,108 @@ def get_archivos():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/archivos-detalle', methods=['GET'])
+def get_archivos_detalle():
+    """Obtiene lista detallada de archivos MP3 con información extendida"""
+    try:
+        songs_dir = project_root / 'canciones'
+        archivos = []
+        if songs_dir.exists():
+            for file in songs_dir.iterdir():
+                if file.suffix.lower() == '.mp3':
+                    try:
+                        duracion = obtener_duracion_mp3(str(file))
+                        archivos.append({
+                            'nombre': file.name,
+                            'tamaño': file.stat().st_size,
+                            'duracion': duracion if duracion else 'N/A',
+                            'fecha_modificacion': file.stat().st_mtime
+                        })
+                    except:
+                        archivos.append({
+                            'nombre': file.name,
+                            'tamaño': file.stat().st_size,
+                            'duracion': 'N/A',
+                            'fecha_modificacion': file.stat().st_mtime
+                        })
+        # Ordenar por nombre
+        archivos.sort(key=lambda x: x['nombre'])
+        return jsonify(archivos)
+    except Exception as e:
+        logger.error(f"Error obteniendo archivos detalle: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/archivos/<archivo_actual>', methods=['PUT'])
+def renombrar_archivo(archivo_actual):
+    """Renombra un archivo MP3"""
+    try:
+        data = request.json
+        if 'nombre_nuevo' not in data:
+            return jsonify({'error': 'Campo nombre_nuevo requerido'}), 400
+        
+        # Validar nombres
+        archivo_actual_name = secure_filename(archivo_actual)
+        nombre_nuevo = secure_filename(data['nombre_nuevo'])
+        
+        if not archivo_actual_name.lower().endswith('.mp3'):
+            nombre_nuevo = nombre_nuevo + '.mp3' if not nombre_nuevo.lower().endswith('.mp3') else nombre_nuevo
+        
+        if not nombre_nuevo.lower().endswith('.mp3'):
+            return jsonify({'error': 'El archivo debe ser MP3'}), 400
+        
+        songs_dir = project_root / 'canciones'
+        archivo_path = songs_dir / archivo_actual_name
+        archivo_nuevo_path = songs_dir / nombre_nuevo
+        
+        # Validar que el archivo actual existe
+        if not archivo_path.exists():
+            return jsonify({'error': 'Archivo no encontrado'}), 404
+        
+        # Validar que el nuevo nombre no existe
+        if archivo_nuevo_path.exists():
+            return jsonify({'error': 'Ya existe un archivo con ese nombre'}), 409
+        
+        # Renombrar archivo
+        archivo_path.rename(archivo_nuevo_path)
+        
+        logger.info(f"Archivo renombrado: {archivo_actual_name} -> {nombre_nuevo}")
+        return jsonify({
+            'mensaje': 'Archivo renombrado exitosamente',
+            'nombre_anterior': archivo_actual_name,
+            'nombre_nuevo': nombre_nuevo
+        }), 200
+    except Exception as e:
+        logger.error(f"Error renombrando archivo: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/archivos/<archivo>', methods=['DELETE'])
+def eliminar_archivo(archivo):
+    """Elimina un archivo MP3 de la carpeta canciones"""
+    try:
+        archivo_name = secure_filename(archivo)
+        songs_dir = project_root / 'canciones'
+        archivo_path = songs_dir / archivo_name
+        
+        # Validar que el archivo existe
+        if not archivo_path.exists():
+            return jsonify({'error': 'Archivo no encontrado'}), 404
+        
+        # Validar que es un archivo MP3
+        if not archivo_name.lower().endswith('.mp3'):
+            return jsonify({'error': 'Solo se pueden eliminar archivos MP3'}), 400
+        
+        # Eliminar archivo
+        archivo_path.unlink()
+        
+        logger.info(f"Archivo eliminado: {archivo_name}")
+        return jsonify({
+            'mensaje': 'Archivo eliminado exitosamente',
+            'archivo': archivo_name
+        }), 200
+    except Exception as e:
+        logger.error(f"Error eliminando archivo: {e}")
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/detectar-conflictos', methods=['GET'])
 def detectar_conflictos():
     try:

@@ -988,3 +988,8 @@ body {
   background: var(--success);
   color: var(--white);
 }
+
+.musica-container {
+  width: 100%;
+  display: block;
+}

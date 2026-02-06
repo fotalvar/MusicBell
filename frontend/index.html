@@ -52,6 +52,12 @@
                     </svg>
                     Reproducción
                 </button>
+                <button class="nav-option" data-tab="musica" onclick="cambiarTab('musica')">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 3v9.28c-.47-.46-1.12-.74-1.84-.74-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4V7h4V3h-6z" />
+                    </svg>
+                    Música
+                </button>
             </div>
 
             <div class="navbar-right">
@@ -97,6 +103,11 @@
             <div id="tab-reproduccion" class="tab-pane">
                 <div id="reproduccionContainer" class="reproduccion-container">
                     <p>Cargando canciones disponibles...</p>
+                </div>
+            </div>
+            <div id="tab-musica" class="tab-pane">
+                <div id="musicContainer" class="musica-container">
+                    <p>Cargando archivos de música...</p>
                 </div>
             </div>
         </main>

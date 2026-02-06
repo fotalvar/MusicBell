@@ -59,6 +59,153 @@ function obtenerNombreDia(fecha) {
   ];
   return dias[fecha.getDay()];
 }
+
+// SISTEMA DE NOTIFICACIONES
+function mostrarNotificacion(mensaje, tipo = "info", duracion = 5000) {
+  const notificacion = document.createElement("div");
+  notificacion.className = `notificacion notificacion-${tipo}`;
+  notificacion.innerHTML = `
+    <div class="notificacion-contenido">
+      <div class="notificacion-icono">
+        ${tipo === "error" ? "⚠️" : tipo === "success" ? "✅" : "ℹ️"}
+      </div>
+      <div class="notificacion-texto">${mensaje}</div>
+      <button class="notificacion-cerrar" onclick="this.parentElement.parentElement.remove()">✕</button>
+    </div>
+  `;
+
+  // Crear contenedor si no existe
+  let contenedor = document.getElementById("notificacionesContenedor");
+  if (!contenedor) {
+    contenedor = document.createElement("div");
+    contenedor.id = "notificacionesContenedor";
+    contenedor.className = "notificaciones-contenedor";
+    document.body.appendChild(contenedor);
+    agregarEstilosNotificaciones();
+  }
+
+  contenedor.appendChild(notificacion);
+
+  // Auto-remover después de la duración
+  if (duracion > 0) {
+    setTimeout(() => {
+      notificacion.remove();
+    }, duracion);
+  }
+}
+
+function agregarEstilosNotificaciones() {
+  if (!document.getElementById("notificaciones-styles")) {
+    const style = document.createElement("style");
+    style.id = "notificaciones-styles";
+    style.textContent = `
+      .notificaciones-contenedor {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 5000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 400px;
+      }
+      .notificacion {
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        border-left: 4px solid;
+        animation: slideIn 0.3s ease;
+        overflow: hidden;
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .notificacion-error {
+        border-left-color: #ff6b6b;
+      }
+      .notificacion-success {
+        border-left-color: #51cf66;
+      }
+      .notificacion-info {
+        border-left-color: #74c0fc;
+      }
+      .notificacion-contenido {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 16px;
+      }
+      .notificacion-icono {
+        font-size: 1.3em;
+        flex-shrink: 0;
+      }
+      .notificacion-texto {
+        flex: 1;
+        font-size: 0.9em;
+        color: var(--gray-800);
+        line-height: 1.4;
+      }
+      .notificacion-cerrar {
+        background: none;
+        border: none;
+        color: var(--gray-400);
+        cursor: pointer;
+        font-size: 1em;
+        padding: 0;
+        flex-shrink: 0;
+        transition: color 0.2s;
+      }
+      .notificacion-cerrar:hover {
+        color: var(--gray-600);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+// VERIFICADORES DE ARCHIVOS FALTANTES
+function obtenerArchivosFaltantes() {
+  const archivosFaltantes = [];
+  const nombresDisponibles = archivosDisponibles.map(a => a.nombre.toLowerCase());
+
+  canciones.forEach((cancion) => {
+    const nombreArchivo = cancion.archivo.toLowerCase();
+    const existe = nombresDisponibles.includes(nombreArchivo);
+    
+    if (!existe) {
+      archivosFaltantes.push({
+        id: cancion.id,
+        nombre: cancion.archivo,
+        nombreCancion: cancion.nombre || cancion.archivo.replace(/\.mp3$/i, "")
+      });
+    }
+  });
+
+  return archivosFaltantes;
+}
+
+async function verificarArchivosFaltantes() {
+  const archivosFaltantes = obtenerArchivosFaltantes();
+  
+  if (archivosFaltantes.length > 0) {
+    const mensaje = archivosFaltantes.length === 1
+      ? `⚠️ 1 archivo faltante en la playlist: ${archivosFaltantes[0].nombre}`
+      : `⚠️ ${archivosFaltantes.length} archivos faltantes en la playlist`;
+    
+    mostrarNotificacion(
+      `${mensaje}\n\nLa música no sonará sin estos archivos. Verifica la pestaña Música.`,
+      "error",
+      0 // No auto-remover
+    );
+  }
+}
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM cargado");
   inicializar();
@@ -68,10 +215,13 @@ async function inicializar() {
   conectarEventos();
   inicializarPanelEstado();
   await cargarArchivos();
+  await cargarArchivosMúsica();
   await cargarCanciones();
   await cargarEstado();
   await obtenerDatosRemoto();
   actualizarSubbarra("canciones");
+  // Verificar archivos faltantes en la playlist
+  verificarArchivosFaltantes();
   updateInterval = setInterval(async () => {
     await cargarEstado();
   }, 2000);
@@ -162,13 +312,16 @@ function actualizarSubbarra(tab) {
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.41 1.41C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg>
                 Programación Rápida
             </button>
+        `;
+  } else if (tab === "reproduccion") {
+    html = `<p style="margin: 0; color: #666; font-size: 0.9em;">Selecciona una canción para reproducir</p>`;
+  } else if (tab === "musica") {
+    html = `
             <button id="btnAbrirModalCarga" class="btn-agregar">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
                 Cargar Música
             </button>
         `;
-  } else if (tab === "reproduccion") {
-    html = `<p style="margin: 0; color: #666; font-size: 0.9em;">Selecciona una canción para reproducir</p>`;
   } else if (tab === "conflictos") {
     html = `<p style="margin: 0; color: #666; font-size: 0.9em;">Verifica los conflictos de horario</p>`;
   }
@@ -180,6 +333,7 @@ function actualizarSubbarra(tab) {
     document
       .getElementById("btnAbrirModalProgramacion")
       .addEventListener("click", abrirModalProgramacion);
+  } else if (tab === "musica") {
     document
       .getElementById("btnAbrirModalCarga")
       .addEventListener("click", abrirModalCargaRemota);
@@ -212,6 +366,16 @@ async function cargarCanciones() {
     actualizarPlayerWidget();
   } catch (error) {
     console.error("Error cargando canciones:", error);
+  }
+}
+
+async function cargarArchivosMúsica() {
+  try {
+    const response = await fetchAPI(`${API_URL}/archivos-detalle`);
+    archivosDisponibles = response;
+    renderizarMusica();
+  } catch (error) {
+    console.error("Error cargando archivos de música:", error);
   }
 }
 async function cargarEstado() {
@@ -406,6 +570,186 @@ function renderizarReproduccion() {
     )
     .join("");
 }
+
+function renderizarMusica() {
+  const container = document.getElementById("musicContainer");
+  if (!container) return;
+
+  if (!archivosDisponibles || archivosDisponibles.length === 0) {
+    container.innerHTML =
+      "<p style='text-align: center; color: #666;'>No hay archivos de música</p>";
+    return;
+  }
+
+  const html = `
+    <table class="tabla-musica">
+      <thead>
+        <tr>
+          <th>Nombre del archivo</th>
+          <th>Duración</th>
+          <th>Tamaño</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${archivosDisponibles
+          .map(
+            (archivo) => `
+          <tr class="fila-musica" data-archivo="${archivo.nombre}">
+            <td class="celda-archivo-nombre">
+              <span>${archivo.nombre}</span>
+            </td>
+            <td class="celda-duracion">
+              <span>${archivo.duracion || "N/A"}</span>
+            </td>
+            <td class="celda-tamaño">
+              <span>${formatarTamaño(archivo.tamaño)}</span>
+            </td>
+            <td class="celda-acciones-musica">
+              <button onclick="abrirModalRenombrar('${archivo.nombre}')" class="btn-tabla btn-renombrar" title="Renombrar">✏️</button>
+              <button onclick="eliminarArchivoMusica('${archivo.nombre}')" class="btn-tabla btn-eliminar" title="Eliminar">🗑️</button>
+            </td>
+          </tr>
+        `,
+          )
+          .join("")}
+      </tbody>
+    </table>
+  `;
+
+  container.innerHTML = html;
+  agregarEstilosMusicaTabla();
+}
+
+function agregarEstilosMusicaTabla() {
+  if (!document.getElementById("musica-tabla-styles")) {
+    const style = document.createElement("style");
+    style.id = "musica-tabla-styles";
+    style.textContent = `
+      .tabla-musica {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: 8px;
+        overflow: hidden;
+        font-size: 0.9em;
+        table-layout: auto;
+      }
+      .tabla-musica thead {
+        background: linear-gradient(135deg, #5b6dff 0%, #7c3aed 100%);
+        color: var(--white);
+        font-weight: 600;
+      }
+      .tabla-musica th {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 2px solid var(--gray-200);
+      }
+      .tabla-musica tbody tr {
+        border-bottom: 1px solid var(--gray-200);
+        transition: all 0.2s ease;
+      }
+      .tabla-musica tbody tr:hover {
+        background-color: #f8f9fa;
+      }
+      .tabla-musica td {
+        padding: 12px 15px;
+      }
+      .celda-archivo-nombre {
+        word-break: break-word;
+        max-width: 300px;
+      }
+      .celda-duracion {
+        min-width: 100px;
+      }
+      .celda-tamaño {
+        min-width: 100px;
+      }
+      .celda-acciones-musica {
+        display: flex;
+        gap: 6px;
+      }
+      .btn-tabla {
+        padding: 6px 10px;
+        border: 1px solid var(--gray-300);
+        background: var(--white);
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+      }
+      .btn-tabla:hover {
+        transform: scale(1.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      }
+      .btn-renombrar:hover {
+        background: #e3f2fd;
+        border-color: #2196F3;
+      }
+      .btn-eliminar:hover {
+        background: #ffebee;
+        border-color: #f44336;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+}
+
+async function abrirModalRenombrar(nombreArchivo) {
+  const nuevoNombre = prompt(
+    `Renombrar archivo:\n\n(Nombre actual: ${nombreArchivo})`,
+    nombreArchivo.replace(/\.mp3$/i, ""),
+  );
+
+  if (nuevoNombre && nuevoNombre.trim() !== "") {
+    const nombreFinal =
+      nuevoNombre.trim() +
+      (nuevoNombre.toLowerCase().endsWith(".mp3") ? "" : ".mp3");
+    await renombrarArchivoMusica(nombreArchivo, nombreFinal);
+  }
+}
+
+async function renombrarArchivoMusica(nombreActual, nombreNuevo) {
+  try {
+    const response = await fetchAPI(`${API_URL}/archivos/${nombreActual}`, {
+      method: "PUT",
+      body: JSON.stringify({ nombre_nuevo: nombreNuevo }),
+    });
+
+    alert("¡Archivo renombrado exitosamente!");
+    await cargarArchivosMúsica();
+    await cargarArchivos(); // Actualizar archivos disponibles para las playlists
+  } catch (error) {
+    alert("Error al renombrar archivo: " + error.message);
+  }
+}
+
+async function eliminarArchivoMusica(nombreArchivo) {
+  const confirmar = confirm(
+    `¿Estás seguro de que deseas eliminar "${nombreArchivo}"?`,
+  );
+
+  if (!confirmar) return;
+
+  try {
+    const response = await fetchAPI(`${API_URL}/archivos/${nombreArchivo}`, {
+      method: "DELETE",
+    });
+
+    alert("¡Archivo eliminado exitosamente!");
+    await cargarArchivosMúsica();
+    await cargarArchivos(); // Actualizar archivos disponibles para las playlists
+  } catch (error) {
+    alert("Error al eliminar archivo: " + error.message);
+  }
+}
+
 function renderizarArchivadas() {
   // Función eliminada - no se usa archivado
 }
@@ -964,6 +1308,8 @@ const observer = new MutationObserver(async (mutations) => {
             renderizarPlaylist();
           } else if (tabId === "tab-reproduccion") {
             renderizarReproduccion();
+          } else if (tabId === "tab-musica") {
+            renderizarMusica();
           }
         }
       });
