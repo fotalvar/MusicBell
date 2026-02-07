@@ -8,6 +8,7 @@ const API_URL = getAPIUrl();
 const cache = { archivos: null, archivosTiempo: 0, CACHE_DURACION: 30000 };
 let canciones = [];
 let archivosDisponibles = [];
+let archivosMúsica = [];
 let estadoPanel = "abierto";
 let updateInterval = null;
 async function fetchAPI(url, options = {}) {
@@ -173,17 +174,17 @@ function agregarEstilosNotificaciones() {
 // VERIFICADORES DE ARCHIVOS FALTANTES
 function obtenerArchivosFaltantes() {
   const archivosFaltantes = [];
-  const nombresDisponibles = archivosDisponibles.map(a => a.nombre.toLowerCase());
+  const nombresDisponibles = archivosMúsica.map((a) => a.nombre.toLowerCase());
 
   canciones.forEach((cancion) => {
     const nombreArchivo = cancion.archivo.toLowerCase();
     const existe = nombresDisponibles.includes(nombreArchivo);
-    
+
     if (!existe) {
       archivosFaltantes.push({
         id: cancion.id,
         nombre: cancion.archivo,
-        nombreCancion: cancion.nombre || cancion.archivo.replace(/\.mp3$/i, "")
+        nombreCancion: cancion.nombre || cancion.archivo.replace(/\.mp3$/i, ""),
       });
     }
   });
@@ -193,17 +194,57 @@ function obtenerArchivosFaltantes() {
 
 async function verificarArchivosFaltantes() {
   const archivosFaltantes = obtenerArchivosFaltantes();
-  
+
   if (archivosFaltantes.length > 0) {
-    const mensaje = archivosFaltantes.length === 1
-      ? `⚠️ 1 archivo faltante en la playlist: ${archivosFaltantes[0].nombre}`
-      : `⚠️ ${archivosFaltantes.length} archivos faltantes en la playlist`;
-    
-    mostrarNotificacion(
-      `${mensaje}\n\nLa música no sonará sin estos archivos. Verifica la pestaña Música.`,
-      "error",
-      0 // No auto-remover
-    );
+    let mensaje = "";
+    if (archivosFaltantes.length === 1) {
+      mensaje = `<strong>⚠️ 1 archivo faltante:</strong><br/>${archivosFaltantes[0].nombre}<br/><br/><small>La música no sonará sin estos archivos. Verifica la pestaña Música.</small>`;
+    } else {
+      const archivos = archivosFaltantes
+        .slice(0, 3)
+        .map((a) => `• ${a.nombre}`)
+        .join("<br/>");
+      const resto =
+        archivosFaltantes.length > 3
+          ? `<br/>... y ${archivosFaltantes.length - 3} más`
+          : "";
+      mensaje = `<strong>⚠️ ${archivosFaltantes.length} archivos faltantes:</strong><br/>${archivos}${resto}<br/><br/><small>La música no sonará sin estos archivos. Verifica la pestaña Música.</small>`;
+    }
+
+    mostrarNotificacionHTML(mensaje, "error", 0); // No auto-remover
+  }
+}
+
+function mostrarNotificacionHTML(html, tipo = "info", duracion = 5000) {
+  const notificacion = document.createElement("div");
+  notificacion.className = `notificacion notificacion-${tipo}`;
+  notificacion.innerHTML = `
+    <div class="notificacion-contenido">
+      <div class="notificacion-icono">
+        ${tipo === "error" ? "⚠️" : tipo === "success" ? "✅" : "ℹ️"}
+      </div>
+      <div class="notificacion-texto">${html}</div>
+      <button class="notificacion-cerrar" onclick="this.parentElement.parentElement.remove()">✕</button>
+    </div>
+  `;
+
+  // Crear contenedor si no existe
+  let contenedor = document.getElementById("notificacionesContenedor");
+  if (!contenedor) {
+    contenedor = document.createElement("div");
+    contenedor.id = "notificacionesContenedor";
+    contenedor.className = "notificaciones-contenedor";
+    document.body.appendChild(contenedor);
+    agregarEstilosNotificaciones();
+  }
+
+  contenedor.appendChild(notificacion);
+
+  // Auto-remover después de la duración
+  if (duracion > 0) {
+    setTimeout(() => {
+      notificacion.remove();
+    }, duracion);
   }
 }
 document.addEventListener("DOMContentLoaded", function () {
@@ -341,8 +382,13 @@ function actualizarSubbarra(tab) {
 }
 async function cargarArchivos() {
   try {
+    console.log("Cargando archivos simples desde:", `${API_URL}/archivos`);
     const response = await fetchAPI(`${API_URL}/archivos`);
+    console.log("Respuesta de archivos:", response);
     archivosDisponibles = response;
+    console.log(
+      `Se cargaron ${archivosDisponibles.length} archivos disponibles`,
+    );
     const selectArchivo = document.getElementById("archivo");
     if (selectArchivo) {
       selectArchivo.innerHTML =
@@ -356,6 +402,7 @@ async function cargarArchivos() {
     }
   } catch (error) {
     console.error("Error cargando archivos:", error);
+    archivosDisponibles = [];
   }
 }
 async function cargarCanciones() {
@@ -371,11 +418,19 @@ async function cargarCanciones() {
 
 async function cargarArchivosMúsica() {
   try {
+    console.log(
+      "Cargando archivos de música desde:",
+      `${API_URL}/archivos-detalle`,
+    );
     const response = await fetchAPI(`${API_URL}/archivos-detalle`);
-    archivosDisponibles = response;
+    console.log("Respuesta de archivos-detalle:", response);
+    archivosMúsica = response;
+    console.log(`Se cargaron ${archivosMúsica.length} archivos de música`);
     renderizarMusica();
   } catch (error) {
     console.error("Error cargando archivos de música:", error);
+    archivosMúsica = [];
+    renderizarMusica(); // Mostrar "No hay archivos" en lugar de error
   }
 }
 async function cargarEstado() {
@@ -494,6 +549,13 @@ function renderizarPlaylist() {
     const fechaB = b.fecha ? new Date(b.fecha) : new Date("2099-12-31");
     return fechaA - fechaB;
   });
+
+  // Obtener archivos faltantes
+  const archivosFaltantes = obtenerArchivosFaltantes();
+  const archivosFaltantesSet = new Set(
+    archivosFaltantes.map((af) => af.nombre.toLowerCase()),
+  );
+
   const html = `
     <table class="tabla-playlist">
       <thead>
@@ -531,9 +593,18 @@ function renderizarPlaylist() {
               yaReproducida = fechaObj < ahora;
             }
 
+            // Verificar si el archivo está faltante
+            const archivoFaltante = archivosFaltantesSet.has(
+              cancion.archivo.toLowerCase(),
+            );
+            const claseError = archivoFaltante ? "fila-archivo-faltante" : "";
+
             return `
-          <tr class="fila-cancion ${yaReproducida ? "fila-reproducida" : ""}" data-id="${cancion.id}">
-            <td class="celda-nombre"><span>${nombreArchivo}</span></td>
+          <tr class="fila-cancion ${yaReproducida ? "fila-reproducida" : ""} ${claseError}" data-id="${cancion.id}" title="${archivoFaltante ? "⚠️ Archivo no encontrado" : ""}">
+            <td class="celda-nombre">
+              <span>${nombreArchivo}</span>
+              ${archivoFaltante ? '<span class="indicador-faltante" title="Archivo no encontrado">⚠️</span>' : ""}
+            </td>
             <td class="celda-fecha" ondblclick="editarCelda(this, 'fecha', ${cancion.id})"><span>${cancion.fecha ? formatarFecha(cancion.fecha) : "-"}</span></td>
             <td class="celda-hora" ondblclick="editarCelda(this, 'hora', ${cancion.id})"><span>${cancion.hora || "-"}</span></td>
             <td class="celda-acciones">
@@ -575,7 +646,9 @@ function renderizarMusica() {
   const container = document.getElementById("musicContainer");
   if (!container) return;
 
-  if (!archivosDisponibles || archivosDisponibles.length === 0) {
+  console.log("Renderizando música, archivosMúsica:", archivosMúsica);
+
+  if (!archivosMúsica || archivosMúsica.length === 0) {
     container.innerHTML =
       "<p style='text-align: center; color: #666;'>No hay archivos de música</p>";
     return;
@@ -592,7 +665,7 @@ function renderizarMusica() {
         </tr>
       </thead>
       <tbody>
-        ${archivosDisponibles
+        ${archivosMúsica
           .map(
             (archivo) => `
           <tr class="fila-musica" data-archivo="${archivo.nombre}">
@@ -745,6 +818,9 @@ async function eliminarArchivoMusica(nombreArchivo) {
     alert("¡Archivo eliminado exitosamente!");
     await cargarArchivosMúsica();
     await cargarArchivos(); // Actualizar archivos disponibles para las playlists
+    await cargarCanciones(); // Recargar canciones para actualizar la playlist
+    renderizarPlaylist(); // Volver a renderizar la playlist para mostrar archivos faltantes
+    verificarArchivosFaltantes(); // Verificar si hay archivos faltantes
   } catch (error) {
     alert("Error al eliminar archivo: " + error.message);
   }
@@ -847,6 +923,24 @@ function agregarEstilosTabla() {
       .btn-eliminar:hover {
         background: var(--danger);
         color: var(--white);
+      }
+      .fila-archivo-faltante {
+        background-color: #ffe8e8 !important;
+        border-left: 3px solid #ff6b6b;
+      }
+      .fila-archivo-faltante:hover {
+        background-color: #ffd4d4 !important;
+      }
+      .indicador-faltante {
+        display: inline-block;
+        margin-left: 8px;
+        font-size: 0.9em;
+        cursor: help;
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
       }
     `;
     document.head.appendChild(style);
@@ -1172,16 +1266,20 @@ async function uploadarArchivos(files) {
     try {
       const formData = new FormData();
       formData.append("file", file);
+      console.log(`Subiendo archivo: ${file.name}`);
       const response = await fetch(`${API_URL}/cargar-archivo`, {
         method: "POST",
         body: formData,
       });
       if (response.ok) {
         uploadedCount++;
+        console.log(`Archivo ${file.name} subido exitosamente`);
         const progress = (uploadedCount / files.length) * 100;
         document.getElementById("progressFill").style.width = progress + "%";
         document.getElementById("uploadStatus").textContent =
           `Subidos ${uploadedCount} de ${files.length} archivos...`;
+      } else {
+        console.error(`Error al subir ${file.name}:`, response.status);
       }
     } catch (error) {
       console.error("Error subiendo archivo:", error);
@@ -1189,7 +1287,16 @@ async function uploadarArchivos(files) {
   }
   document.getElementById("uploadProgress").style.display = "none";
   alert(`¡${uploadedCount} archivo(s) subido(s) exitosamente!`);
+
+  console.log("Recargando archivos...");
   await cargarArchivos();
+  console.log("Recargando archivos de música...");
+  await cargarArchivosMúsica();
+  console.log("Recargando canciones...");
+  await cargarCanciones();
+
+  renderizarPlaylist(); // Actualizar playlist
+  verificarArchivosFaltantes(); // Verificar archivos faltantes
   cerrarModalCargaRemota();
 }
 async function apagarAplicacion() {
